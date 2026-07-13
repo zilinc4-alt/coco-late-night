@@ -1,6 +1,15 @@
 <script setup>
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useOrderStore } from '../stores/order.js'
+
 const router = useRouter()
+const order = useOrderStore()
+
+const badgeLabel = computed(() => (order.current ? '你今晚幻想过' : '今晚订单'))
+const badgeValue = computed(() =>
+  order.current ? `¥${order.current.total} 已幻想` : '¥0 已支付',
+)
 
 function startOrder() {
   router.push('/restaurants/bbq')
@@ -16,8 +25,8 @@ function startOrder() {
       </div>
       <div class="glow"></div>
       <div class="badge">
-        <div class="badge-label">今晚订单</div>
-        <div class="badge-value">¥0 已支付</div>
+        <div class="badge-label">{{ badgeLabel }}</div>
+        <div class="badge-value">{{ badgeValue }}</div>
       </div>
     </div>
 

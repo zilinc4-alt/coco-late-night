@@ -2,9 +2,19 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useOrderStore } from '../stores/order.js'
+import { useJournalStore } from '../stores/journal.js'
 
 const router = useRouter()
 const order = useOrderStore()
+const journal = useJournalStore()
+
+const hasJournal = computed(() => journal.total > 0)
+
+const totalMoney = computed(() => journal.totalMoney)
+const monthTotal = computed(() => journal.monthTotal)
+const totalKcal = computed(() => journal.totalCalories)
+const topCategory = computed(() => journal.topCategory)
+const topHour = computed(() => journal.topHour)
 
 const badgeLabel = computed(() => (order.current ? '你今晚幻想过' : '今晚订单'))
 const badgeValue = computed(() =>
@@ -18,7 +28,39 @@ function startOrder() {
 
 <template>
   <div class="page home">
-    <div class="hero-card">
+    <!-- 深夜档案面板（下过单后显示） -->
+    <div v-if="hasJournal" class="hero-card journal-card">
+      <div class="journal-header">
+        <div class="journal-eyebrow">你的深夜档案</div>
+        <div class="journal-count">已幻想 <b>{{ journal.total }}</b> 次</div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-label">本月幻想</div>
+          <div class="stat-value">{{ monthTotal }}<span class="stat-unit">次</span></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">累计假付</div>
+          <div class="stat-value accent">¥{{ totalMoney }}</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">省下热量</div>
+          <div class="stat-value">{{ Math.round(totalKcal / 100) / 10 }}<span class="stat-unit">k kcal</span></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">最馋的品类</div>
+          <div class="stat-value small">{{ topCategory ? topCategory.label : '—' }}</div>
+        </div>
+      </div>
+
+      <div v-if="topHour" class="journal-foot">
+        你最常在 <b>{{ topHour.label }}</b> 想点，那时的你要不要试试先喝口水。
+      </div>
+    </div>
+
+    <!-- 初次访问 hero -->
+    <div v-else class="hero-card">
       <div class="phone-glyph">
         <div class="stripe stripe-1"></div>
         <div class="stripe stripe-2"></div>
@@ -111,13 +153,92 @@ function startOrder() {
 }
 .badge-label {
   font-size: 11px;
-  color: var(--fg-muted);
+  color: rgba(58, 42, 21, 0.7);
   margin-bottom: 2px;
 }
 .badge-value {
   font-size: 15px;
   font-weight: 800;
 }
+
+/* 深夜档案面板 */
+.journal-card {
+  height: auto;
+  padding: 20px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(247, 181, 0, 0.32) 0%, transparent 50%),
+    radial-gradient(circle at 0% 100%, rgba(255, 138, 61, 0.20) 0%, transparent 55%),
+    linear-gradient(135deg, #251a10 0%, #14100b 100%);
+  border: 1px solid rgba(255, 216, 140, 0.16);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
+}
+.journal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+}
+.journal-eyebrow {
+  color: var(--primary-1);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.journal-count {
+  color: #fbe9c8;
+  font-size: 12px;
+}
+.journal-count b {
+  color: var(--primary-1);
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0 2px;
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.stat {
+  background: rgba(255, 216, 140, 0.06);
+  border: 1px solid rgba(255, 216, 140, 0.09);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.stat-label {
+  color: #baa78a;
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+.stat-value {
+  color: #fbe9c8;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.stat-value.accent {
+  color: var(--primary-1);
+}
+.stat-value.small {
+  font-size: 16px;
+}
+.stat-unit {
+  font-size: 12px;
+  font-weight: 500;
+  color: #baa78a;
+  margin-left: 3px;
+}
+.journal-foot {
+  margin-top: 14px;
+  color: #baa78a;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.journal-foot b {
+  color: var(--primary-1);
+  font-weight: 700;
+}
+
 h1.page-title {
   font-size: 32px;
 }

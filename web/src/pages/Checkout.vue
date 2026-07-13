@@ -3,12 +3,14 @@ import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart.js'
 import { useOrderStore } from '../stores/order.js'
+import { useJournalStore } from '../stores/journal.js'
 import { findShop } from '../data/shops.js'
 import { ADDRESSES, COUPON_NAME, ORDER_REMARK } from '../data/meta.js'
 
 const router = useRouter()
 const cart = useCartStore()
 const order = useOrderStore()
+const journal = useJournalStore()
 
 onMounted(() => {
   if (cart.count === 0) router.replace('/home')
@@ -25,6 +27,7 @@ const savedCalories = computed(() => {
 function placeOrder() {
   if (!shop.value || cart.count === 0) return
   order.createFrom(shop.value, cart.lineItems, addressIdx.value)
+  journal.add(order.current, shop.value)
   cart.clear()
   router.push('/waiting')
 }

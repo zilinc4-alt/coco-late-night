@@ -3,10 +3,25 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useOrderStore } from '../stores/order.js'
 import { DISTRACT_HINTS } from '../data/meta.js'
+import { SHOPS } from '../data/shops.js'
+import SharePoster from '../components/SharePoster.vue'
 
 const router = useRouter()
 const order = useOrderStore()
 let timer = null
+
+const shopForPoster = computed(() => {
+  if (!order.current) return null
+  return SHOPS.find((s) => s.name === order.current.shopName) || null
+})
+
+const showSharePoster = ref(false)
+function openShare() {
+  showSharePoster.value = true
+}
+function closeShare() {
+  showSharePoster.value = false
+}
 
 onMounted(() => {
   if (!order.current) {
@@ -281,6 +296,7 @@ function closeDialog() {
 
     <!-- 三个按钮 -->
     <div class="actions">
+      <button class="primary-button share-btn" @click="openShare">生成我的深夜订单海报</button>
       <button class="secondary-button" @click="pickWater">我先去喝杯水</button>
       <button class="secondary-button" @click="pickTeeth">我去刷个牙</button>
       <button class="secondary-button" @click="pickStill">我还是很想点</button>
@@ -303,6 +319,14 @@ function closeDialog() {
         </div>
       </div>
     </transition>
+
+    <!-- 分享海报 -->
+    <SharePoster
+      :open="showSharePoster"
+      :order="order.current"
+      :shop="shopForPoster"
+      @close="closeShare"
+    />
   </div>
 </template>
 

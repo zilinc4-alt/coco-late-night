@@ -1,7 +1,12 @@
 <script setup>
+import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useThemeStore } from '../stores/theme.js'
+
 const router = useRouter()
 const route = useRoute()
+const theme = useThemeStore()
+
 function goBack() {
   if (window.history.length > 1) router.back()
   else router.push('/home')
@@ -9,6 +14,11 @@ function goBack() {
 function goHome() {
   router.push('/home')
 }
+function toggleTheme() {
+  theme.toggle()
+}
+const themeIcon = computed(() => (theme.theme === 'dark' ? '☀' : '☾'))
+const themeLabel = computed(() => (theme.theme === 'dark' ? '切浅色' : '切深色'))
 </script>
 
 <template>
@@ -23,7 +33,10 @@ function goHome() {
       <span class="brand-name">COCO 的深夜食堂</span>
     </div>
 
-    <button class="ico-btn" @click="goHome" aria-label="首页">⌂</button>
+    <div class="right-btns">
+      <button class="ico-btn" @click="toggleTheme" :aria-label="themeLabel">{{ themeIcon }}</button>
+      <button class="ico-btn" @click="goHome" aria-label="首页">⌂</button>
+    </div>
   </header>
 </template>
 
@@ -36,9 +49,13 @@ function goHome() {
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
-  background: rgba(251, 247, 239, 0.9);
+  background: color-mix(in srgb, var(--bg-page) 88%, transparent);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-soft);
+}
+.right-btns {
+  display: flex;
+  gap: 8px;
 }
 .ico-btn {
   width: 40px;
@@ -53,7 +70,7 @@ function goHome() {
   transition: background 0.15s;
 }
 .ico-btn:active {
-  background: rgba(247, 181, 0, 0.18);
+  background: rgba(247, 181, 0, 0.22);
 }
 .ico-btn.ghost {
   opacity: 0;
@@ -71,7 +88,7 @@ function goHome() {
   width: 26px;
   height: 26px;
   background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
-  color: #3a2a15;
+  color: #14100b;
   border-radius: 8px;
   display: inline-flex;
   align-items: center;

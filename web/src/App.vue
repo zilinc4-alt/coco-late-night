@@ -1,5 +1,10 @@
 <script setup>
+import { onMounted } from 'vue'
 import TopBar from './components/TopBar.vue'
+import { useThemeStore } from './stores/theme.js'
+
+const theme = useThemeStore()
+onMounted(() => theme.init())
 </script>
 
 <template>

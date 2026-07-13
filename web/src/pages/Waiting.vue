@@ -191,13 +191,19 @@ function showToast(msg) {
   toastTimer = setTimeout(() => (toast.value = ''), 2600)
 }
 const showDialog = ref(false)
+const dialogContent = ref({ title: '', body: '', cta: '' })
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
 function pickWater() {
-  showToast(DISTRACT_HINTS['我先去喝杯水'])
+  showToast(pickRandom(DISTRACT_HINTS['我先去喝杯水']))
 }
 function pickTeeth() {
-  showToast(DISTRACT_HINTS['我去刷个牙'])
+  showToast(pickRandom(DISTRACT_HINTS['我去刷个牙']))
 }
 function pickStill() {
+  dialogContent.value = pickRandom(DISTRACT_HINTS['我还是很想点'])
   showDialog.value = true
 }
 function closeDialog() {
@@ -311,10 +317,10 @@ function closeDialog() {
     <transition name="fade">
       <div v-if="showDialog" class="dialog-mask" @click.self="closeDialog">
         <div class="dialog card">
-          <div class="dialog-title">{{ DISTRACT_HINTS['我还是很想点'].title }}</div>
-          <p class="dialog-body">{{ DISTRACT_HINTS['我还是很想点'].body }}</p>
+          <div class="dialog-title">{{ dialogContent.title }}</div>
+          <p class="dialog-body">{{ dialogContent.body }}</p>
           <button class="primary-button" @click="closeDialog">
-            {{ DISTRACT_HINTS['我还是很想点'].cta }}
+            {{ dialogContent.cta }}
           </button>
         </div>
       </div>

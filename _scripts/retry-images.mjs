@@ -1,5 +1,11 @@
-// 只重试尚未下载的图。慢速：并发 1，每张间隔 2 秒。
-// 用法：node _scripts/retry-images.mjs
+// 多轮智能重试脚本：扫描 web/public/dishes/ 里的图，
+// 找出"图小到一定阈值以下 = 疑似失败 or 老兜底图" 的 lock，
+// 用 pollinations.ai 重生成。多轮策略，每轮换更简单关键词。
+//
+// 用法：
+//   node _scripts/retry-images.mjs
+//   node _scripts/retry-images.mjs --only-missing   只重试完全不存在的
+//   node _scripts/retry-images.mjs --min-bytes=6000
 
 import { readFile, writeFile, mkdir, stat } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
@@ -14,14 +20,20 @@ const OUT_DIR = path.join(ROOT, 'web', 'public', 'dishes')
 const sharpPath = path.join(ROOT, 'web', 'node_modules', 'sharp', 'dist', 'index.mjs')
 const { default: sharp } = await import(pathToFileURL(sharpPath).href)
 
-const TIMEOUT_MS = 20000
-const DELAY_MS = 2200
+const args = process.argv.slice(2)
+const ONLY_MISSING = args.includes('--only-missing')
+const MIN_BYTES = Number((args.find((a) => a.startsWith('--min-bytes=')) || '=6000').split('=')[1]) || 6000
+
+const TIMEOUT_MS = 90000
+const DELAY_MS = 700
+const COOLDOWN_MS = 30000
+const MAX_ROUNDS = 5
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 const src = await readFile(SHOPS_FILE, 'utf8')
 const urlRe = /img\(\s*'([^']+)'\s*,\s*(\d+)\s*\)/g
-const tasks = []
+const all = []
 const seen = new Set()
 let m
 while ((m = urlRe.exec(src))) {
@@ -29,53 +41,91 @@ while ((m = urlRe.exec(src))) {
   const lock = m[2]
   if (seen.has(lock)) continue
   seen.add(lock)
-  tasks.push({ kw, lock })
+  all.push({ kw, lock })
 }
 
-// filter to only missing
-const missing = []
-for (const t of tasks) {
-  const out = path.join(OUT_DIR, `${t.lock}.webp`)
-  if (existsSync(out)) {
-    const st = await stat(out)
-    if (st.size > 500) continue
+// filter to what needs retry
+const toRetry = []
+for (const t of all) {
+  const outPath = path.join(OUT_DIR, `${t.lock}.webp`)
+  if (!existsSync(outPath)) {
+    toRetry.push(t)
+    continue
   }
-  missing.push(t)
+  if (ONLY_MISSING) continue
+  try {
+    const st = await stat(outPath)
+    if (st.size < MIN_BYTES) toRetry.push(t)
+  } catch {
+    toRetry.push(t)
+  }
 }
-console.log(`[extract] total=${tasks.length}, missing=${missing.length}`)
+
+console.log(`[extract] total=${all.length}, need retry=${toRetry.length} (threshold=${MIN_BYTES} bytes, only-missing=${ONLY_MISSING})`)
+if (toRetry.length === 0) {
+  console.log('[done] nothing to retry')
+  process.exit(0)
+}
 
 await mkdir(OUT_DIR, { recursive: true })
 
-let ok = 0
-let fail = 0
-const failures = []
+function buildPrompt(kw) {
+  const clean = kw.replace(/[,-]/g, ' ')
+  return `${clean}, close up food photography, dark restaurant table background, appetizing, professional, no text`
+}
 
-for (let i = 0; i < missing.length; i++) {
-  const { kw, lock } = missing[i]
-  const outPath = path.join(OUT_DIR, `${lock}.webp`)
-  const url = `https://loremflickr.com/400/400/${encodeURIComponent(kw)}?lock=${lock}`
+// 逐轮化简 keyword：完整 → 3 词 → 2 词 → 1 词 → 兜底 food
+function simplifyKeyword(kw, round) {
+  const tokens = kw.replace(/,/g, '-').split('-').filter(Boolean)
+  if (round === 0) return kw
+  if (round === 1) return tokens.slice(-3).join(' ')
+  if (round === 2) return tokens.slice(-2).join(' ')
+  if (round === 3) return tokens[tokens.length - 1] || 'food'
+  return 'delicious food dish'
+}
+
+async function tryOne(kw, lock) {
+  const prompt = buildPrompt(kw)
+  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=400&height=400&nologo=true&seed=${lock}`
+  const controller = new AbortController()
+  const t = setTimeout(() => controller.abort(), TIMEOUT_MS)
   try {
-    const controller = new AbortController()
-    const t = setTimeout(() => controller.abort(), TIMEOUT_MS)
     const res = await fetch(url, { signal: controller.signal, redirect: 'follow' })
-    clearTimeout(t)
     if (!res.ok) throw new Error(`http ${res.status}`)
     const buf = Buffer.from(await res.arrayBuffer())
-    if (buf.length < 500) throw new Error('too small')
+    if (buf.length < 3000) throw new Error('too small')
     const webp = await sharp(buf).resize(400, 400, { fit: 'cover' }).webp({ quality: 75 }).toBuffer()
-    await writeFile(outPath, webp)
-    ok++
-    console.log(`  [${i + 1}/${missing.length}] OK  ${lock}.webp (${kw})`)
-  } catch (e) {
-    fail++
-    failures.push({ kw, lock, err: e.message })
-    console.log(`  [${i + 1}/${missing.length}] FAIL ${lock} (${kw}): ${e.message}`)
+    await writeFile(path.join(OUT_DIR, `${lock}.webp`), webp)
+    return true
+  } catch {
+    return false
+  } finally {
+    clearTimeout(t)
   }
-  if (i < missing.length - 1) await sleep(DELAY_MS)
 }
 
-console.log(`\n[done] ok=${ok} fail=${fail}`)
-if (failures.length) {
-  console.log('\n[remaining failures]')
-  for (const f of failures) console.log(`  ${f.lock} (${f.kw}): ${f.err}`)
+let remaining = [...toRetry]
+for (let r = 0; r < MAX_ROUNDS && remaining.length > 0; r++) {
+  console.log(`\n[round ${r + 1}/${MAX_ROUNDS}] retrying ${remaining.length} items (strategy ${r})`)
+  const stillFailing = []
+  let idx = 0
+  for (const item of remaining) {
+    idx++
+    const kw = simplifyKeyword(item.kw, r)
+    const ok = await tryOne(kw, item.lock)
+    if (!ok) stillFailing.push(item)
+    if (idx % 5 === 0) {
+      console.log(`  ${idx}/${remaining.length}  still-failing=${stillFailing.length}`)
+    }
+    await sleep(DELAY_MS)
+  }
+  console.log(`[round ${r + 1}] done, ok=${remaining.length - stillFailing.length}, still-failing=${stillFailing.length}`)
+  remaining = stillFailing
+  if (remaining.length > 0 && r < MAX_ROUNDS - 1) {
+    console.log(`[round ${r + 1}] cooling down ${COOLDOWN_MS / 1000}s...`)
+    await sleep(COOLDOWN_MS)
+  }
 }
+
+console.log(`\n[final] ${remaining.length} still failing after ${MAX_ROUNDS} rounds`)
+for (const f of remaining) console.log(`  ${f.lock}: ${f.kw}`)

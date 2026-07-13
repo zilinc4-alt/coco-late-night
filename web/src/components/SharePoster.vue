@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, nextTick } from 'vue'
+import QRCode from 'qrcode'
 
 const props = defineProps({
   open: Boolean,
@@ -13,6 +14,7 @@ const busy = ref(false)
 
 const POSTER_W = 750
 const POSTER_H = 1334
+const SITE_URL = 'https://deepnight.icu'
 
 const HERO_GRADIENTS = {
   default: ['#f7b500', '#d97a2e'],
@@ -33,6 +35,20 @@ async function draw() {
   if (!props.order || !props.shop) return
   busy.value = true
   await nextTick()
+
+  // 提前生成二维码 dataURL
+  const qrDataUrl = await QRCode.toDataURL(SITE_URL, {
+    width: 240,
+    margin: 1,
+    color: { dark: '#14100b', light: '#ffd58a' },
+    errorCorrectionLevel: 'M',
+  })
+  const qrImg = new Image()
+  qrImg.src = qrDataUrl
+  await new Promise((resolve) => {
+    if (qrImg.complete) resolve()
+    else qrImg.onload = resolve
+  })
 
   const canvas = document.createElement('canvas')
   canvas.width = POSTER_W
@@ -111,10 +127,8 @@ async function draw() {
   ctx.font = '500 28px -apple-system, "PingFang SC", sans-serif'
   for (const it of items) {
     ctx.fillStyle = '#fbe9c8'
-    // 菜名
     const name = it.qty > 1 ? `${it.name} ×${it.qty}` : it.name
     ctx.fillText(truncate(ctx, name, POSTER_W - 200), 60, y)
-    // 单价合计
     ctx.fillStyle = '#f5a63a'
     ctx.textAlign = 'right'
     ctx.fillText(`¥${it.price * it.qty}`, POSTER_W - 60, y)
@@ -129,19 +143,26 @@ async function draw() {
     y += 40
   }
 
-  // 底部条：域名 + 提示
+  // 底部条：左品牌文案 + 右二维码
   const footY = POSTER_H - 180
   ctx.fillStyle = 'rgba(247, 181, 0, 0.14)'
   roundRect(ctx, 60, footY, POSTER_W - 120, 120, 20)
   ctx.fill()
 
+  // 右侧二维码（100×100 内嵌 QR）
+  const qrSize = 96
+  const qrX = POSTER_W - 100 - qrSize
+  const qrY = footY + (120 - qrSize) / 2
+  ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize)
+
+  // 左侧品牌 + slogan
   ctx.fillStyle = '#ffd58a'
-  ctx.font = '800 42px -apple-system, "PingFang SC", sans-serif'
-  ctx.fillText('deepnight.icu', 100, footY + 62)
+  ctx.font = '800 34px -apple-system, "PingFang SC", sans-serif'
+  ctx.fillText('扫码打开·COCO 深夜食堂', 100, footY + 58)
 
   ctx.fillStyle = '#baa78a'
   ctx.font = '400 22px -apple-system, "PingFang SC", sans-serif'
-  ctx.fillText('假外卖，真陪你 · 深夜想点点这里', 100, footY + 100)
+  ctx.fillText('假外卖，真陪你 · 深夜想点点这里', 100, footY + 96)
 
   // 输出为 png
   const dataUrl = canvas.toDataURL('image/png')

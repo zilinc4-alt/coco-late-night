@@ -143,26 +143,29 @@ async function draw() {
     y += 40
   }
 
-  // 底部条：左品牌文案 + 右二维码
-  const footY = POSTER_H - 180
+  // 底部条：居中大二维码 + 下方 caption
+  const footY = POSTER_H - 220
+  const footH = 200
   ctx.fillStyle = 'rgba(247, 181, 0, 0.14)'
-  roundRect(ctx, 60, footY, POSTER_W - 120, 120, 20)
+  roundRect(ctx, 60, footY, POSTER_W - 120, footH, 20)
   ctx.fill()
 
-  // 右侧二维码（100×100 内嵌 QR）
-  const qrSize = 96
-  const qrX = POSTER_W - 100 - qrSize
-  const qrY = footY + (120 - qrSize) / 2
+  // 居中二维码，带白底
+  const qrSize = 140
+  const qrPad = 8
+  const qrX = (POSTER_W - qrSize) / 2
+  const qrY = footY + 16
+  ctx.fillStyle = '#fbe9c8'
+  roundRect(ctx, qrX - qrPad, qrY - qrPad, qrSize + qrPad * 2, qrSize + qrPad * 2, 10)
+  ctx.fill()
   ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize)
 
-  // 左侧品牌 + slogan
+  // caption
   ctx.fillStyle = '#ffd58a'
-  ctx.font = '800 34px -apple-system, "PingFang SC", sans-serif'
-  ctx.fillText('扫码打开·COCO 深夜食堂', 100, footY + 58)
-
-  ctx.fillStyle = '#baa78a'
-  ctx.font = '400 22px -apple-system, "PingFang SC", sans-serif'
-  ctx.fillText('假外卖，真陪你 · 深夜想点点这里', 100, footY + 96)
+  ctx.font = '700 24px -apple-system, "PingFang SC", sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('扫码打开 · deepnight.icu', POSTER_W / 2, footY + footH - 18)
+  ctx.textAlign = 'left'
 
   // 输出为 png
   const dataUrl = canvas.toDataURL('image/png')

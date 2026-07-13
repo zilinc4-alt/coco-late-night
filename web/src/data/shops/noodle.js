@@ -1,0 +1,36 @@
+import { img } from './_img.js'
+
+export const noodle = [
+  {
+    slug: 'building-three-noodle',
+    name: '被窝三号楼泡面档',
+    category: 'noodle',
+    desc: '锅是电磁炉的，热气是被窝的。三分钟，就够到家。',
+    tags: ['被窝里也能吃', '汤够辣', '加料自便'],
+    rating: 4.7,
+    monthSold: '4800+',
+    avgPrice: 21,
+    eta: [16, 29],
+    isNew: false,
+    coverGradient: ['#a2542a', '#dc9058'],
+    coverEmoji: '🍜',
+    image: img('instant-noodle,ramen', 129),
+    dishes: [
+      { g: '招牌', name: '深夜辛拉面', desc: '汤要够辣，人才够醒。', price: 15, sold: 2000, image: img('shin-ramen,spicy', 291) },
+      { g: '招牌', name: '被子里的红烧牛肉面', desc: '一口下去，被窝就是最好的地方。', price: 12, sold: 1800, image: img('beef-noodle-soup', 292) },
+      { g: '招牌', name: '日式豚骨拉面', desc: '一层油花，把今天的委屈盖住。', price: 22, sold: 900, image: img('tonkotsu-ramen', 293) },
+      { g: '招牌', name: '海鲜辛味泡面', desc: '辣得海阔天空，也就想睡了。', price: 18, sold: 780, image: img('seafood-instant-noodle', 294) },
+      { g: '加料', name: '加一颗溏心蛋', desc: '一戳流心，就像刚被安慰过。', price: 3, sold: 3200, image: img('soft-boiled-egg', 295) },
+      { g: '加料', name: '加一片午餐肉', desc: '一片就够，不用负担。', price: 4, sold: 2500, image: img('spam-slice,noodle', 296) },
+      { g: '加料', name: '加一勺辣白菜', desc: '一勺酸辣，把气也顺了。', price: 3, sold: 2100, image: img('kimchi,side-dish', 297) },
+      { g: '加料', name: '一把海苔碎', desc: '飘一层绿，画面就好看了。', price: 2, sold: 1600, image: img('nori-seaweed', 298) },
+      { g: '饮品', name: '解辣冰奶', desc: '辣完之后，需要它。', price: 6, sold: 1400, image: img('cold-milk-glass', 299) },
+      { g: '饮品', name: '梅子苏打', desc: '一点酸，一点气，一点晚安。', price: 10, sold: 620, image: img('plum-soda', 300) },
+      { g: '招牌', name: '芝士炸弹泡面', desc: '拉丝糊住整个碗，也糊住焦虑。', price: 22, sold: 720, image: img('cheese-ramen-bowl', 751) },
+      { g: '招牌', name: '把周一泡烂了乌冬', desc: '汤足面滑，周一先泡半晌。', price: 20, sold: 640, image: img('udon-hot-soup', 752) },
+      { g: '加料', name: '加一勺辣油', desc: '一勺下去，被子里都是精神。', price: 3, sold: 1800, image: img('chili-oil-jar', 753) },
+      { g: '加料', name: '加两根芝士条', desc: '扯出来的那一瞬间，人也松了。', price: 5, sold: 1100, image: img('cheese-stick-melt', 754) },
+      { g: '饮品', name: '深夜巧克力冲剂', desc: '一小杯稠稠的，把心口堵住。', price: 12, sold: 480, image: img('hot-chocolate-mug', 755) },
+    ],
+  },
+]

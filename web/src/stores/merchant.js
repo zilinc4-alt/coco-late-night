@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-const LS_KEY = 'ddj_merchant_shops'
+const LS_KEY = 'coco_merchant_shops'
 
 // 生成 NIGHT-ABC123 风格口令
 function generateCode() {
@@ -57,6 +57,8 @@ export const useMerchantStore = defineStore('merchant', {
       this.shops.push(shop)
       saveAll(this.shops)
       this.activeCode = code
+      // 初始化统计数据
+      this.stats[code] = { visits: 0, orders: 0, virtualIncome: 0, cravedCount: 0 }
       return shop
     },
     updateShop(patch) {
@@ -92,6 +94,25 @@ export const useMerchantStore = defineStore('merchant', {
     },
     logout() {
       this.activeCode = null
+    },
+    // 数据追踪
+    _ensureStats(code) {
+      if (!this.stats[code]) {
+        this.stats[code] = { visits: 0, orders: 0, virtualIncome: 0, cravedCount: 0 }
+      }
+    },
+    trackVisit(code) {
+      this._ensureStats(code)
+      this.stats[code].visits++
+    },
+    trackCrave(code) {
+      this._ensureStats(code)
+      this.stats[code].cravedCount++
+    },
+    trackOrder(code, total) {
+      this._ensureStats(code)
+      this.stats[code].orders++
+      this.stats[code].virtualIncome += total || 0
     },
   },
 })

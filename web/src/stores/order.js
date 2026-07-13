@@ -88,6 +88,12 @@ export const useOrderStore = defineStore('order', {
         }
       }
     },
+    /** 页面卸载前强制保存（由 beforeunload 调用） */
+    flush() {
+      if (this.current) {
+        saveToStorage(this.current)
+      }
+    },
     clear() {
       this.current = null
       saveToStorage(null)

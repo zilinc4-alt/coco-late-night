@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart.js'
 import { useOrderStore } from '../stores/order.js'
 import { useJournalStore } from '../stores/journal.js'
+import { useMerchantStore } from '../stores/merchant.js'
 import { findShop } from '../data/shops.js'
 import { ADDRESSES, COUPON_NAME, ORDER_REMARK } from '../data/meta.js'
 
@@ -11,6 +12,7 @@ const router = useRouter()
 const cart = useCartStore()
 const order = useOrderStore()
 const journal = useJournalStore()
+const merchant = useMerchantStore()
 
 onMounted(() => {
   if (cart.count === 0) router.replace('/home')
@@ -28,6 +30,9 @@ function placeOrder() {
   if (!shop.value || cart.count === 0) return
   order.createFrom(shop.value, cart.lineItems, addressIdx.value)
   journal.add(order.current, shop.value)
+  // 追踪店家订单
+  const own = merchant.shops.find((s) => s.code.toLowerCase() === cart.shopSlug.toLowerCase())
+  if (own) merchant.trackOrder(own.code, cart.total)
   cart.clear()
   router.push('/waiting')
 }
@@ -101,10 +106,11 @@ function placeOrder() {
   margin-bottom: 6px;
 }
 .line-name {
-  max-width: 240px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+  padding-right: 8px;
+  line-height: 1.5;
 }
 .line-price {
   color: var(--fg);
@@ -149,7 +155,7 @@ function placeOrder() {
   margin-top: 10px;
   padding: 8px 12px;
   background: rgba(247, 181, 0, 0.12);
-  color: #8f5a1a;
+  color: var(--accent);
   font-size: 12px;
   border-radius: 8px;
 }

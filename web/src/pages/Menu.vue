@@ -46,6 +46,11 @@ function loadShop() {
 const shop = ref(loadShop())
 onMounted(() => {
   if (!shop.value) router.replace('/home')
+  // 追踪店家访问
+  if (shop.value) {
+    const own = merchant.shops.find((s) => s.code.toLowerCase() === slug.toLowerCase())
+    if (own) merchant.trackVisit(own.code)
+  }
 })
 
 // 按 g 分组
@@ -63,6 +68,9 @@ const MIN_ORDER = 25
 
 function add(dish) {
   cart.add(shop.value.slug, dish)
+  // 追踪"被馋"
+  const own = merchant.shops.find((s) => s.code.toLowerCase() === slug.toLowerCase())
+  if (own) merchant.trackCrave(own.code)
 }
 function remove(dish) {
   cart.remove(shop.value.slug, dish)
@@ -288,11 +296,11 @@ function goCheckout() {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #3a2a15;
-  border: 1px solid rgba(255, 240, 200, 0.08);
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-pill);
   padding: 6px 6px 6px 16px;
-  box-shadow: 0 12px 30px rgba(58, 42, 21, 0.32);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
 .cart-summary {
   display: flex;
@@ -321,11 +329,11 @@ function goCheckout() {
 }
 .cart-tip {
   font-size: 11px;
-  color: rgba(255, 246, 220, 0.55);
+  color: var(--fg-dim);
   white-space: nowrap;
 }
 .cart-tip.ok {
-  color: rgba(255, 246, 220, 0.85);
+  color: var(--fg-muted);
 }
 .ck-btn {
   width: auto;

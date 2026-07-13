@@ -17,6 +17,16 @@ const secondaryShops = computed(() => otherShops(currentSlug.value))
 function switchCategory(slug) {
   router.replace(`/restaurants/${slug}`)
 }
+function onTabKey(e, slug) {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+    e.preventDefault()
+    const idx = CATEGORIES.findIndex((c) => c.slug === slug)
+    const next = e.key === 'ArrowRight'
+      ? CATEGORIES[(idx + 1) % CATEGORIES.length]
+      : CATEGORIES[(idx - 1 + CATEGORIES.length) % CATEGORIES.length]
+    switchCategory(next.slug)
+  }
+}
 function enterShop(shop) {
   router.push(`/menu/${shop.slug}`)
 }
@@ -30,13 +40,17 @@ function enterShop(shop) {
 
     <!-- 分类横滑 -->
     <div class="tabs-wrap">
-      <div class="tabs">
+      <div class="tabs" role="tablist" :aria-label="currentCat.name + ' 分类筛选'">
         <button
           v-for="c in CATEGORIES"
           :key="c.slug"
+          role="tab"
           class="tab"
           :class="{ active: c.slug === currentSlug }"
+          :aria-selected="c.slug === currentSlug ? 'true' : 'false'"
+          :tabindex="c.slug === currentSlug ? 0 : -1"
           @click="switchCategory(c.slug)"
+          @keydown="onTabKey($event, c.slug)"
         >
           <span class="tab-emoji">{{ c.emoji }}</span>
           <span>{{ c.name }}</span>

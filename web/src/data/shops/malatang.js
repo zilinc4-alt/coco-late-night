@@ -1,0 +1,36 @@
+import { img } from './_img.js'
+
+export const malatang = [
+  {
+    slug: 'malatang-center',
+    name: '麻辣烫宇宙中心',
+    category: 'malatang',
+    desc: '汤底翻滚起来，坐下的人各自的心事都煮进去了。',
+    tags: ['汤底烧滚', '辣到耳朵红', '大铁勺'],
+    rating: 4.8,
+    monthSold: '7777+',
+    avgPrice: 35,
+    eta: [30, 45],
+    isNew: false,
+    coverGradient: ['#a53a1a', '#e37040'],
+    coverEmoji: '🌶️',
+    image: img('malatang,spicy-hotpot', 109),
+    dishes: [
+      { g: '荤菜', name: '热辣午餐肉', desc: '想爽一口，就爽一口。', price: 8, sold: 1200, image: img('luncheon-meat,spicy', 251) },
+      { g: '荤菜', name: '虾滑救命', desc: '嚼一口，脑子里嗡嗡的那些声音也就小了。', price: 12, sold: 900, image: img('shrimp-paste-hotpot', 252) },
+      { g: '荤菜', name: '嫩牛肉卷', desc: '一片一片，把烦躁涮下去。', price: 16, sold: 780, image: img('beef-roll,hotpot', 253) },
+      { g: '荤菜', name: '毛肚三秒', desc: '数完 3 秒就捞，脑袋跟着松开。', price: 18, sold: 620, image: img('beef-tripe,hotpot', 254) },
+      { g: '素菜', name: '一片豆皮', desc: '吸满汤，一口就顶。', price: 3, sold: 2500, image: img('tofu-skin,hotpot', 255) },
+      { g: '素菜', name: '娃娃菜安慰', desc: '看着简单，其实很懂你。', price: 4, sold: 1800, image: img('baby-cabbage,hotpot', 256) },
+      { g: '素菜', name: '金针菇一小把', desc: '细细软软，像今晚愿意松开的自己。', price: 5, sold: 1600, image: img('enoki-mushroom,hotpot', 257) },
+      { g: '主食', name: '手擀宽粉', desc: '吸满汤的样子，就是今晚的样子。', price: 10, sold: 2200, image: img('wide-noodles,hotpot', 258) },
+      { g: '主食', name: '土豆粉', desc: '嗦一口，回一口气。', price: 8, sold: 1400, image: img('potato-noodles,soup', 259) },
+      { g: '汤底', name: '番茄汤底（微辣）', desc: '给辣度一个下台阶。', price: 5, sold: 900, image: img('tomato-soup-base', 260) },
+      { g: '荤菜', name: '鹌鹑蛋咕嘟咕嘟', desc: '一颗一颗滚起来，像今晚的想法。', price: 6, sold: 1100, image: img('quail-egg-hotpot', 740) },
+      { g: '素菜', name: '有点面的南瓜块', desc: '甜甜糯糯，安慰级选手。', price: 5, sold: 980, image: img('pumpkin-cube-boiled', 741) },
+      { g: '素菜', name: '木耳一小碟', desc: '滑，清脆，像今晚的耳根。', price: 4, sold: 860, image: img('wood-ear-mushroom', 742) },
+      { g: '主食', name: '一坨方便面', desc: '压扁下锅，就像被生活按住的自己。', price: 6, sold: 1900, image: img('instant-noodle-brick', 743) },
+      { g: '汤底', name: '麻辣汤底（够辣）', desc: '不留退路，就这一顿疯一下。', price: 5, sold: 1050, image: img('mala-soup-red', 744) },
+    ],
+  },
+]

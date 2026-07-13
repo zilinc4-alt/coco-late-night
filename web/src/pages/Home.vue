@@ -168,8 +168,8 @@ function startOrder() {
   background:
     radial-gradient(circle at 100% 0%, rgba(247, 181, 0, 0.32) 0%, transparent 50%),
     radial-gradient(circle at 0% 100%, rgba(255, 138, 61, 0.20) 0%, transparent 55%),
-    linear-gradient(135deg, #251a10 0%, #14100b 100%);
-  border: 1px solid rgba(255, 216, 140, 0.16);
+    linear-gradient(135deg, var(--bg-card) 0%, var(--bg-page) 100%);
+  border: 1px solid var(--border-strong);
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
 }
 .journal-header {
@@ -185,7 +185,7 @@ function startOrder() {
   letter-spacing: 0.5px;
 }
 .journal-count {
-  color: #fbe9c8;
+  color: var(--fg);
   font-size: 12px;
 }
 .journal-count b {
@@ -200,18 +200,18 @@ function startOrder() {
   gap: 12px;
 }
 .stat {
-  background: rgba(255, 216, 140, 0.06);
-  border: 1px solid rgba(255, 216, 140, 0.09);
+  background: var(--bg-input);
+  border: 1px solid var(--border-soft);
   border-radius: 10px;
   padding: 12px 14px;
 }
 .stat-label {
-  color: #baa78a;
+  color: var(--fg-muted);
   font-size: 11px;
   margin-bottom: 4px;
 }
 .stat-value {
-  color: #fbe9c8;
+  color: var(--fg);
   font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.5px;
@@ -225,12 +225,12 @@ function startOrder() {
 .stat-unit {
   font-size: 12px;
   font-weight: 500;
-  color: #baa78a;
+  color: var(--fg-muted);
   margin-left: 3px;
 }
 .journal-foot {
   margin-top: 14px;
-  color: #baa78a;
+  color: var(--fg-muted);
   font-size: 12px;
   line-height: 1.7;
 }

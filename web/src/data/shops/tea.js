@@ -1,0 +1,36 @@
+import { img } from './_img.js'
+
+export const tea = [
+  {
+    slug: 'no-fat-tea',
+    name: '今天不胖奶茶店',
+    category: 'tea',
+    desc: '糖分先记账上，甜到心里的那部分不还。',
+    tags: ['甜得体面', '睡前也能喝', '珍珠很软'],
+    rating: 4.7,
+    monthSold: '12000+',
+    avgPrice: 24,
+    eta: [18, 32],
+    isNew: false,
+    coverGradient: ['#a86a34', '#e6b47a'],
+    coverEmoji: '🧋',
+    image: img('bubble-tea', 104),
+    dishes: [
+      { g: '招牌', name: '明早再算奶茶', desc: '这一杯的热量，明早再面对。', price: 22, sold: 1502, image: img('milk-tea', 161) },
+      { g: '招牌', name: '再想想波霸', desc: '想想还是先来一口。', price: 20, sold: 1301, image: img('boba-tea', 162) },
+      { g: '招牌', name: '拖延一下芋圆', desc: '一颗一颗慢慢喝，时间会更长。', price: 26, sold: 980, image: img('taro-milk-tea', 163) },
+      { g: '招牌', name: '烤黑糖脏脏拿铁', desc: '甜到掉线，也是一种关机。', price: 24, sold: 1120, image: img('brown-sugar-latte', 164) },
+      { g: '果茶', name: '柠檬破防冰茶', desc: '酸完一口，眼泪就没那么想掉。', price: 18, sold: 640, image: img('lemon-tea,iced', 165) },
+      { g: '果茶', name: '葡萄不再讲道理', desc: '连籽都不吐，任性一晚。', price: 22, sold: 480, image: img('grape-fruit-tea', 166) },
+      { g: '轻负担', name: '零糖清茶', desc: '你以为你要的是茶，其实是喘口气。', price: 12, sold: 750, image: img('green-tea', 167) },
+      { g: '轻负担', name: '茉莉冷萃', desc: '一杯下去，房间里都是白花香。', price: 16, sold: 320, image: img('jasmine-cold-brew', 168) },
+      { g: '加料', name: '再一勺珍珠', desc: '一勺就好，别贪。', price: 3, sold: 2100, image: img('tapioca-pearls', 169) },
+      { g: '加料', name: '半勺仙草冻', desc: '黑漆漆一小坨，Q 弹得刚好。', price: 3, sold: 1100, image: img('grass-jelly', 170) },
+      { g: '招牌', name: '奶茶自由再一次', desc: '一杯到底的续命，续到明天再算。', price: 25, sold: 1620, image: img('milk-tea-cup-fresh', 715) },
+      { g: '果茶', name: '芒果不闹脾气', desc: '整颗芒果打进去，甜得没脾气。', price: 24, sold: 720, image: img('mango-fruit-tea', 716) },
+      { g: '轻负担', name: '假装喝水的乌龙', desc: '朋友问：喝什么？答：水。', price: 10, sold: 900, image: img('oolong-plain-glass', 717) },
+      { g: '加料', name: '再加一小份布丁', desc: '一勺撞进奶茶，像小惊喜落地。', price: 4, sold: 880, image: img('pudding-topping-cup', 718) },
+      { g: '招牌', name: '深夜也不睡杨枝甘露', desc: '芒果、椰浆、西米——都在陪你熬夜。', price: 28, sold: 1080, image: img('yang-zhi-gan-lu', 719) },
+    ],
+  },
+]

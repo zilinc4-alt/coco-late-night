@@ -233,7 +233,7 @@ function addDish() {
 }
 .minor.accent {
   background: rgba(247, 181, 0, 0.18);
-  color: #8f5a1a;
+  color: var(--accent);
   border-color: rgba(247, 181, 0, 0.45);
 }
 .minor:active {
@@ -254,7 +254,7 @@ function addDish() {
 .stats-empty {
   padding: 12px 14px;
   background: rgba(247, 181, 0, 0.12);
-  color: #8f5a1a;
+  color: var(--accent);
   border-radius: 8px;
   font-size: 12px;
   margin: 0 0 12px;

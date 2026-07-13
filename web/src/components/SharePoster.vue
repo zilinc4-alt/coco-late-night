@@ -14,7 +14,7 @@ const busy = ref(false)
 
 const POSTER_W = 750
 const POSTER_H = 1334
-const SITE_URL = 'https://deepnight.icu'
+const SITE_URL = import.meta.env.VITE_SITE_URL || 'https://deepnight.icu'
 
 const HERO_GRADIENTS = {
   default: ['#f7b500', '#d97a2e'],

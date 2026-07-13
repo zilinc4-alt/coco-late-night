@@ -32,11 +32,26 @@ onMounted(() => {
     order.tick(1)
     maybeSpawnEvent()
   }, 1000)
+  document.addEventListener('keydown', onKeyDown)
+  window.addEventListener('beforeunload', onBeforeUnload)
 })
 onUnmounted(() => {
   if (timer) clearInterval(timer)
   if (eventTimer) clearTimeout(eventTimer)
+  document.removeEventListener('keydown', onKeyDown)
+  window.removeEventListener('beforeunload', onBeforeUnload)
 })
+
+function onBeforeUnload() {
+  order.flush()
+}
+
+function onKeyDown(e) {
+  if (e.key === 'Escape') {
+    if (showDialog.value) closeDialog()
+    if (showSharePoster.value) closeShare()
+  }
+}
 
 const minutes = computed(() => Math.floor(order.remainingSeconds / 60))
 const seconds = computed(() => order.remainingSeconds % 60)
@@ -240,9 +255,9 @@ function closeDialog() {
         <span class="map-street">📍 {{ streetName }} 附近</span>
         <span class="map-route">路线：{{ routeVariant.name }}</span>
       </div>
-      <div class="map">
+      <div class="map" role="img" :aria-label="`配送路线图：从${order.current.shopName}到你，路线为${routeVariant.name}，${streetName}附近`">
         <!-- 网格 + 装饰 -->
-        <svg class="grid-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <svg class="grid-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           <defs>
             <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
               <path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(107,76,30,.08)" stroke-width="0.25" />
@@ -315,9 +330,9 @@ function closeDialog() {
 
     <!-- 冲动对话框 -->
     <transition name="fade">
-      <div v-if="showDialog" class="dialog-mask" @click.self="closeDialog">
+      <div v-if="showDialog" class="dialog-mask" role="dialog" aria-modal="true" aria-labelledby="dialog-title" @click.self="closeDialog">
         <div class="dialog card">
-          <div class="dialog-title">{{ dialogContent.title }}</div>
+          <div class="dialog-title" id="dialog-title">{{ dialogContent.title }}</div>
           <p class="dialog-body">{{ dialogContent.body }}</p>
           <button class="primary-button" @click="closeDialog">
             {{ dialogContent.cta }}

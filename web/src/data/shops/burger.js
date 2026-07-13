@@ -1,0 +1,36 @@
+import { img } from './_img.js'
+
+export const burger = [
+  {
+    slug: 'night-shift-burger',
+    name: '夜班汉堡屋',
+    category: 'burger',
+    desc: '美式老铺，橙色灯光和黄芥末从下午亮到打烊。',
+    tags: ['出餐飞快', '双层双肉', '薯条随汉堡烫'],
+    rating: 4.6,
+    monthSold: '6666+',
+    avgPrice: 36,
+    eta: [20, 34],
+    isNew: false,
+    coverGradient: ['#a75c2f', '#e5945f'],
+    coverEmoji: '🍔',
+    image: img('burger,fast-food', 110),
+    dishes: [
+      { g: '招牌', name: '夜班巨无霸', desc: '双层双肉双酱，跟你双倍的疲惫刚刚好。', price: 32, sold: 1500, image: img('big-mac-burger', 271) },
+      { g: '招牌', name: '被夸巨牛堡', desc: '很久没被夸了，这堡替 Boss 夸夸你。', price: 28, sold: 1200, image: img('beef-burger,double', 272) },
+      { g: '招牌', name: '深夜芝士堡', desc: '拉丝那一下，把今天没做完的事拉到明天了。', price: 30, sold: 980, image: img('cheeseburger', 273) },
+      { g: '招牌', name: '辣香鸡腿堡', desc: '辣度刚好把嘴里的话咽下去。', price: 26, sold: 1080, image: img('spicy-chicken-burger', 274) },
+      { g: '套餐', name: '一个人的深夜套餐', desc: '汉堡 + 薯条 + 可乐，够一整晚。', price: 42, sold: 2000, image: img('burger-combo-meal', 275) },
+      { g: '套餐', name: '两个人假装还没吵架套餐', desc: '两份，一起吃就当和好了。', price: 76, sold: 340, image: img('couple-burger-meal', 276) },
+      { g: '小吃', name: '被冷落薯条', desc: '外面很冷，里面很热。', price: 12, sold: 1800, image: img('fries,ketchup', 277) },
+      { g: '小吃', name: '奶油玉米杯', desc: '一勺甜甜的，给今天一个甜结尾。', price: 8, sold: 1200, image: img('sweet-corn-cup', 278) },
+      { g: '饮品', name: '收工可乐', desc: '嘶——那一声，就是下班铃。', price: 8, sold: 1600, image: img('cola-cup', 279) },
+      { g: '饮品', name: '香草奶昔', desc: '甜的、冰的、慢的，都需要。', price: 14, sold: 720, image: img('vanilla-milkshake', 280) },
+      { g: '招牌', name: '救回一天双层芝士牛肉堡', desc: '两层芝士，把烂在肚子里的话都封上。', price: 34, sold: 780, image: img('cheese-melt-burger', 745) },
+      { g: '招牌', name: '想开一点培根堡', desc: '每一片培根都替你原谅了一件事。', price: 30, sold: 620, image: img('bacon-burger', 746) },
+      { g: '小吃', name: '安慰奖鸡米花', desc: '一个一个撒进嘴里，像在数好事。', price: 12, sold: 1400, image: img('popcorn-chicken', 747) },
+      { g: '小吃', name: '洋葱圈别绕了', desc: '一圈一圈，圈住冲动，也圈住脆感。', price: 14, sold: 900, image: img('onion-rings', 748) },
+      { g: '饮品', name: '深夜柠檬红茶', desc: '一杯下去，胃比心先松。', price: 10, sold: 680, image: img('iced-lemon-tea-glass', 749) },
+    ],
+  },
+]

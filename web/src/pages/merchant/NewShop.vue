@@ -16,6 +16,29 @@ const form = ref({
   cover: null,
 })
 
+const coverPreview = ref('')
+const fileInput = ref(null)
+
+function triggerUpload() {
+  fileInput.value?.click()
+}
+
+function onFileChange(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  // 限制 2MB
+  if (file.size > 2 * 1024 * 1024) {
+    alert('图片大小不能超过 2MB，请压缩后再上传。')
+    return
+  }
+  const reader = new FileReader()
+  reader.onload = () => {
+    form.value.cover = reader.result
+    coverPreview.value = reader.result
+  }
+  reader.readAsDataURL(file)
+}
+
 const canSubmit = computed(() => form.value.name.trim() && form.value.desc.trim())
 
 const remain = computed(() => {
@@ -73,13 +96,17 @@ function save() {
 
       <div class="field">
         <label class="field-label">店铺封面</label>
-        <div class="cover-placeholder">
-          <div class="cover-thumb">🔥</div>
+        <div class="cover-placeholder" @click="triggerUpload">
+          <div class="cover-thumb" v-if="coverPreview">
+            <img :src="coverPreview" alt="preview" class="cover-preview-img" />
+          </div>
+          <div class="cover-thumb" v-else>🔥</div>
           <div>
             <div class="cover-title">上传店铺封面</div>
-            <div class="cover-hint">从手机相册选择。会压缩后随店铺资料同步到服务器。</div>
+            <div class="cover-hint">从手机相册选择。会压缩后随店铺资料同步。最大 2MB。</div>
           </div>
         </div>
+        <input ref="fileInput" type="file" accept="image/*" style="display:none" @change="onFileChange" />
       </div>
     </div>
 
@@ -115,6 +142,16 @@ function save() {
   background: linear-gradient(135deg, rgba(247, 181, 0, 0.15), rgba(255, 216, 130, 0.1));
   border: 1px dashed rgba(247, 181, 0, 0.5);
   border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.cover-placeholder:hover {
+  border-color: rgba(247, 181, 0, 0.8);
+}
+.cover-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
 }
 .cover-thumb {
   width: 60px;
@@ -125,6 +162,8 @@ function save() {
   align-items: center;
   justify-content: center;
   font-size: 28px;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 .cover-title {
   font-weight: 700;

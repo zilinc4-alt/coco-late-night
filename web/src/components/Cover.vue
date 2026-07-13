@@ -10,8 +10,14 @@ const props = defineProps({
 })
 
 const failed = ref(false)
+const loaded = ref(false)
+
 function onError() {
   failed.value = true
+  loaded.value = true
+}
+function onLoad() {
+  loaded.value = true
 }
 </script>
 
@@ -25,13 +31,19 @@ function onError() {
       borderRadius: radius,
     }"
   >
+    <!-- 骨架屏脉冲（图片加载中时显示） -->
+    <span v-if="image && !loaded && !failed" class="skeleton" aria-hidden="true"></span>
+
     <img
       v-if="image && !failed"
       class="img"
+      :class="{ loaded: loaded }"
       :src="image"
       :alt="emoji"
       loading="lazy"
+      decoding="async"
       @error="onError"
+      @load="onLoad"
     />
     <span v-else class="emoji">{{ emoji }}</span>
   </div>
@@ -54,6 +66,23 @@ function onError() {
   pointer-events: none;
   z-index: 2;
 }
+.skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.08) 25%,
+    rgba(255, 255, 255, 0.18) 50%,
+    rgba(255, 255, 255, 0.08) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 .emoji {
   font-size: 30px;
   position: relative;
@@ -66,5 +95,10 @@ function onError() {
   object-fit: cover;
   position: relative;
   z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.img.loaded {
+  opacity: 1;
 }
 </style>

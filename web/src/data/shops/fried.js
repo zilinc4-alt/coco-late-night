@@ -1,0 +1,36 @@
+import { img } from './_img.js'
+
+export const fried = [
+  {
+    slug: 'emo-fried',
+    name: '情绪炸鸡铺',
+    category: 'fried',
+    desc: '把一整天没说出口的话，咬进脆皮里。',
+    tags: ['脆皮上头', '出油出气', '现炸不等'],
+    rating: 4.9,
+    monthSold: '8888+',
+    avgPrice: 38,
+    eta: [22, 36],
+    isNew: false,
+    coverGradient: ['#b8531a', '#f0a55c'],
+    coverEmoji: '🍗',
+    image: img('fried-chicken', 103),
+    dishes: [
+      { g: '招牌', name: '崩溃前一秒炸鸡桶', desc: '一大桶，够撑到明早不再回消息。', price: 68, sold: 2001, image: img('fried-chicken-bucket', 141) },
+      { g: '招牌', name: '假装很稳鸡腿堡', desc: '外面很稳，里面在流汁。', price: 24, sold: 977, image: img('chicken-burger', 142) },
+      { g: '招牌', name: '骨气都在鸡翅', desc: '硬撑一天了，翅根替你歇会儿。', price: 22, sold: 850, image: img('fried-chicken-wings', 143) },
+      { g: '招牌', name: '首尔辣酱脆皮鸡', desc: '甜辣裹得严严实实，像今天的心事。', price: 32, sold: 720, image: img('korean-fried-chicken', 144) },
+      { g: '加一点', name: '再来一根鸡柳', desc: '吃到第三根，一天里那些叫嚣的声音也就小了。', price: 12, sold: 663, image: img('chicken-tender', 145) },
+      { g: '加一点', name: '安慰薯条', desc: '一根一根排队进嘴，很治愈。', price: 10, sold: 1032, image: img('french-fries', 146) },
+      { g: '加一点', name: '奶酪奥尔良翅根', desc: '拉丝的奶酪，把疲惫也拉长了。', price: 18, sold: 480, image: img('cheese-chicken', 147) },
+      { g: '饮品', name: '收工可乐', desc: '气冒完了，人也就松了。', price: 6, sold: 900, image: img('coca-cola,ice', 148) },
+      { g: '饮品', name: '柠檬无糖气泡', desc: '有点酸，像今天的自己。', price: 10, sold: 380, image: img('lemon-soda', 149) },
+      { g: '套餐', name: '整个晚上都归你套餐', desc: '一份炸鸡+薯条+可乐，全给你。', price: 45, sold: 1580, image: img('fried-chicken-combo', 150) },
+      { g: '招牌', name: '哭完还想吃鸡米花', desc: '一颗一颗，把眼泪先咽下去。', price: 16, sold: 820, image: img('popcorn-chicken-bowl', 710) },
+      { g: '加一点', name: '删了聊天记录洋葱圈', desc: '一圈套一圈，套住不想承认的想念。', price: 12, sold: 540, image: img('fried-onion-rings', 711) },
+      { g: '加一点', name: '假装很忙鸡块', desc: '啃着就没空回消息了。', price: 15, sold: 690, image: img('fried-chicken-nugget', 712) },
+      { g: '饮品', name: '爷青回大桶雪碧', desc: '气泡把今天的年龄泡回去一点。', price: 8, sold: 720, image: img('sprite-cup-bubble', 713) },
+      { g: '套餐', name: '两个人吃也不算复合套餐', desc: '双人份，但绝不共享一根薯条。', price: 88, sold: 320, image: img('fried-chicken-family-meal', 714) },
+    ],
+  },
+]

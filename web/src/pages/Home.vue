@@ -5,9 +5,6 @@ const router = useRouter()
 function startOrder() {
   router.push('/restaurants/bbq')
 }
-function goMerchant() {
-  router.push('/merchant')
-}
 </script>
 
 <template>
@@ -32,8 +29,6 @@ function goMerchant() {
     </p>
 
     <button class="primary-button" @click="startOrder">开始点单</button>
-    <div style="height: 12px"></div>
-    <button class="secondary-button" @click="goMerchant">我是店家</button>
 
     <p class="footer-note">
       不会花钱，不会下单，不会真的送来。<br />

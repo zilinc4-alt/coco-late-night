@@ -1,6 +1,30 @@
 import { defineStore } from 'pinia'
 import { RIDER_NAMES, ADDRESSES, COUPON_NAME, ORDER_REMARK } from '../data/meta.js'
 
+const STORAGE_KEY = 'coco-order-v1'
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    return JSON.parse(raw)
+  } catch (e) {
+    return null
+  }
+}
+
+function saveToStorage(current) {
+  try {
+    if (current) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(current))
+    } else {
+      localStorage.removeItem(STORAGE_KEY)
+    }
+  } catch (e) {
+    // 忽略配额/隐私模式错误
+  }
+}
+
 function randomOrderId() {
   return String(Math.floor(10000 + Math.random() * 90000))
 }
@@ -10,7 +34,7 @@ function pick(arr) {
 
 export const useOrderStore = defineStore('order', {
   state: () => ({
-    current: null,
+    current: loadFromStorage(),
     // { id, shopName, items:[{name,qty,price}], total, address, coupon, remark,
     //   etaSeconds, elapsedSeconds, riderName, createdAt }
   }),
@@ -53,12 +77,20 @@ export const useOrderStore = defineStore('order', {
         riderName: pick(RIDER_NAMES),
         createdAt: Date.now(),
       }
+      saveToStorage(this.current)
     },
     tick(seconds = 1) {
-      if (this.current) this.current.elapsedSeconds += seconds
+      if (this.current) {
+        this.current.elapsedSeconds += seconds
+        // 每 10 秒写一次，减少 IO 压力
+        if (this.current.elapsedSeconds % 10 === 0) {
+          saveToStorage(this.current)
+        }
+      }
     },
     clear() {
       this.current = null
+      saveToStorage(null)
     },
   },
 })

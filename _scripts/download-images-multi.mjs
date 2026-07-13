@@ -1,11 +1,8 @@
-// 用豆包 Seedream 生成菜品图（火山方舟 API）
-// - 每张图按 lock 从对应分类的风格模板池挑一个，让 243 张风格多样化
-// - fallback 链：某模型报额度/权限错误自动切下一个
-// - 已存在（且体积 >6KB）的图跳过；--force 强制覆盖
+// 双平台生图脚本（豆包 Ark + 腾讯 TokenHub），按新→旧/好→省 fallback。
 //
 // 用法：
-//   ARK_API_KEY=xxx node _scripts/download-images-doubao.mjs
-//   ARK_API_KEY=xxx node _scripts/download-images-doubao.mjs --force
+//   ARK_API_KEY=xxx TOKENHUB_KEY=xxx node _scripts/download-images-multi.mjs
+//   ARK_API_KEY=xxx TOKENHUB_KEY=xxx node _scripts/download-images-multi.mjs --force
 
 import { readFile, writeFile, mkdir, stat } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
@@ -21,30 +18,43 @@ const sharpPath = path.join(ROOT, 'web', 'node_modules', 'sharp', 'dist', 'index
 const { default: sharp } = await import(pathToFileURL(sharpPath).href)
 
 const ARK_KEY = process.env.ARK_API_KEY
-if (!ARK_KEY) {
-  console.error('缺少 ARK_API_KEY 环境变量')
+const TOKENHUB_KEY = process.env.TOKENHUB_KEY
+const DASHSCOPE_KEY = process.env.DASHSCOPE_KEY
+if (!ARK_KEY && !TOKENHUB_KEY && !DASHSCOPE_KEY) {
+  console.error('缺少 ARK_API_KEY / TOKENHUB_KEY / DASHSCOPE_KEY 至少一个')
   process.exit(1)
 }
 
-// 模型 fallback 链：新 → 旧
+const ARK_ENDPOINT = 'https://ark.cn-beijing.volces.com/api/v3/images/generations'
+const TH_ENDPOINT = 'https://tokenhub.tencentmaas.com/v1/images/generations'
+const DS_ENDPOINT = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis'
+const DS_TASK_ENDPOINT = 'https://dashscope.aliyuncs.com/api/v1/tasks/'
+
+// 模型 fallback 链：贵→省，新→旧
+// ⚠ 阿里云 DashScope (dashscope) 已从链移除 —— wan 2.5 preview 有少量免费额度，wan 2.1 需要充值。默认不启用。
 const MODEL_CHAIN = [
-  { id: 'doubao-seedream-5-0-pro-260628', size: '2048x2048' },
-  { id: 'doubao-seedream-5-0-260128', size: '2048x2048' },
-  { id: 'doubao-seedream-4-5-251128', size: '2048x2048' },
-  { id: 'doubao-seedream-4-0-250828', size: '1024x1024' },
+  // 腾讯混元
+  { id: 'hy-image-v3.0', provider: 'tokenhub', size: '1024x1024' },
+  // 豆包
+  { id: 'doubao-seedream-5-0-pro-260628', provider: 'ark', size: '2048x2048' },
+  { id: 'doubao-seedream-5-0-260128', provider: 'ark', size: '2048x2048' },
+  { id: 'doubao-seedream-4-5-251128', provider: 'ark', size: '2048x2048' },
+  { id: 'doubao-seedream-4-0-250828', provider: 'ark', size: '1024x1024' },
+  // 兜底
+  { id: 'hy-image-lite', provider: 'tokenhub', size: '1024x1024' },
 ]
 
-const ENDPOINT = 'https://ark.cn-beijing.volces.com/api/v3/images/generations'
 const CONCURRENCY = 3
-const TIMEOUT_MS = 90000
+const TIMEOUT_MS = 120000
 const FORCE = process.argv.includes('--force')
+const CUTOFF_ENV = process.env.CUTOFF
+const CUTOFF_MS = CUTOFF_ENV ? new Date(CUTOFF_ENV).getTime() : 0
 const MIN_BYTES = 6000
 
 let modelStartIdx = 0
 const disabledModels = new Set()
 
-// -------- 风格模板池 --------
-// 每个分类多个风格模板。用 lock % 模板数 挑选。
+// -------- 风格模板池（按分类） --------
 const STYLE_POOL = {
   bbq: [
     { angle: '俯拍 45°', bg: '生锈铁盘', light: '篝火橙红光', mood: '烟雾缭绕，炭火余烬', extra: '油亮反光，肉汁滴落' },
@@ -121,77 +131,130 @@ function buildPrompt(kw, chineseName, category, lock) {
   )
 }
 
-// -------- 解析 shops.js：提 category + dish image --------
+// -------- 解析 shops.js --------
 const src = await readFile(SHOPS_FILE, 'utf8')
-// 分店匹配 —— 每个 shop 块 category:'xxx' ... dishes:[...] ... image: img(...)
-// 简化做法：先切分 shop 块，每块内部提取
 const shopBlocks = src.split(/\{\s*slug:/).slice(1)
-
 const tasks = []
 const seen = new Set()
-
 for (const block of shopBlocks) {
   const cat = (block.match(/category:\s*'([^']+)'/) || [, 'default'])[1]
-  // 店铺封面：image: img('...', N)
   const shopImg = block.match(/^\s*[\s\S]*?image:\s*img\(\s*'([^']+)'\s*,\s*(\d+)\s*\)/)
-  if (shopImg) {
-    const lock = shopImg[2]
-    if (!seen.has(lock)) {
-      seen.add(lock)
-      tasks.push({ chineseName: '', kw: shopImg[1], lock, category: cat })
-    }
+  if (shopImg && !seen.has(shopImg[2])) {
+    seen.add(shopImg[2])
+    tasks.push({ chineseName: '', kw: shopImg[1], lock: shopImg[2], category: cat })
   }
-  // 菜品：name:'x'...image: img('kw', N)
   const dishRe = /name:\s*'([^']+)'[^{}]*?image:\s*img\(\s*'([^']+)'\s*,\s*(\d+)\s*\)/g
   let dm
   while ((dm = dishRe.exec(block))) {
-    const lock = dm[3]
-    if (seen.has(lock)) continue
-    seen.add(lock)
-    tasks.push({ chineseName: dm[1], kw: dm[2], lock, category: cat })
+    if (seen.has(dm[3])) continue
+    seen.add(dm[3])
+    tasks.push({ chineseName: dm[1], kw: dm[2], lock: dm[3], category: cat })
   }
 }
 
-console.log(`[extract] ${tasks.length} unique images from shops.js`)
+console.log(`[extract] ${tasks.length} unique images`)
 console.log(`[chain] ${MODEL_CHAIN.length} models:`)
-for (const s of MODEL_CHAIN) console.log(`  - ${s.id} (${s.size})`)
-// 统计每分类多少
-const byCat = {}
-for (const t of tasks) byCat[t.category] = (byCat[t.category] || 0) + 1
-console.log(`[by category]`, byCat)
+for (const s of MODEL_CHAIN) console.log(`  - [${s.provider}] ${s.id} (${s.size})`)
 await mkdir(OUT_DIR, { recursive: true })
 
 let done = 0, ok = 0, skip = 0, fail = 0
 const failures = []
 
+// 混元 hy-image 有 1 个并发上限：每个 provider 分配一个"信号量"，同时只能有一个 tokenhub 请求
+// 用 Promise chain 实现串行锁
+let tokenhubLock = Promise.resolve()
+function withTokenhubLock(fn) {
+  const prev = tokenhubLock
+  tokenhubLock = prev.then(() => fn(), () => fn())
+  return tokenhubLock
+}
+
 async function callArk(model, prompt, seed, size) {
   const controller = new AbortController()
   const t = setTimeout(() => controller.abort(), TIMEOUT_MS)
   try {
-    const res = await fetch(ENDPOINT, {
+    const res = await fetch(ARK_ENDPOINT, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${ARK_KEY}`,
-      },
-      body: JSON.stringify({
-        model,
-        prompt,
-        size,
-        seed,
-        response_format: 'url',
-        watermark: false,
-      }),
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${ARK_KEY}` },
+      body: JSON.stringify({ model, prompt, size, seed, response_format: 'url', watermark: false }),
       signal: controller.signal,
     })
     const txt = await res.text()
-    if (!res.ok) {
-      return { error: { status: res.status, body: txt } }
-    }
+    if (!res.ok) return { error: { status: res.status, body: txt } }
     const data = JSON.parse(txt)
     const url = data?.data?.[0]?.url
     if (!url) return { error: { status: 0, body: 'no url' } }
     return { url }
+  } finally {
+    clearTimeout(t)
+  }
+}
+
+async function callTokenhub(model, prompt, size) {
+  return withTokenhubLock(async () => {
+    const controller = new AbortController()
+    const t = setTimeout(() => controller.abort(), TIMEOUT_MS)
+    try {
+      const res = await fetch(TH_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKENHUB_KEY}` },
+        body: JSON.stringify({ model, prompt, size }),
+        signal: controller.signal,
+      })
+      const txt = await res.text()
+      if (!res.ok) return { error: { status: res.status, body: txt } }
+      const data = JSON.parse(txt)
+      // 检查是否是 error 结构
+      if (data?.error) return { error: { status: 200, body: txt } }
+      const url = data?.data?.[0]?.url
+      if (!url) return { error: { status: 0, body: txt.slice(0, 200) } }
+      return { url }
+    } finally {
+      clearTimeout(t)
+    }
+  })
+}
+
+async function callDashscope(model, prompt, size) {
+  const controller = new AbortController()
+  const t = setTimeout(() => controller.abort(), TIMEOUT_MS)
+  try {
+    const res = await fetch(DS_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${DASHSCOPE_KEY}`,
+        'X-DashScope-Async': 'enable',
+      },
+      body: JSON.stringify({ model, input: { prompt }, parameters: { size, n: 1 } }),
+      signal: controller.signal,
+    })
+    const txt = await res.text()
+    if (!res.ok) return { error: { status: res.status, body: txt } }
+    const data = JSON.parse(txt)
+    if (data?.code) return { error: { status: 200, body: txt } }
+    const taskId = data?.output?.task_id
+    if (!taskId) return { error: { status: 0, body: txt.slice(0, 200) } }
+    const pollStart = Date.now()
+    while (Date.now() - pollStart < 60000) {
+      await new Promise((r) => setTimeout(r, 3000))
+      const pres = await fetch(DS_TASK_ENDPOINT + taskId, {
+        headers: { Authorization: `Bearer ${DASHSCOPE_KEY}` },
+      })
+      const ptxt = await pres.text()
+      if (!pres.ok) return { error: { status: pres.status, body: ptxt } }
+      const pdata = JSON.parse(ptxt)
+      const st = pdata?.output?.task_status
+      if (st === 'SUCCEEDED') {
+        const url = pdata?.output?.results?.[0]?.url
+        if (!url) return { error: { status: 0, body: 'no url in result' } }
+        return { url }
+      }
+      if (st === 'FAILED' || st === 'CANCELED') {
+        return { error: { status: 0, body: JSON.stringify(pdata?.output || {}).slice(0, 200) } }
+      }
+    }
+    return { error: { status: 0, body: 'poll timeout' } }
   } finally {
     clearTimeout(t)
   }
@@ -215,25 +278,40 @@ function isQuotaOrPermError(status, body) {
   if (status === 401 || status === 403 || status === 404) return true
   const lc = (body || '').toLowerCase()
   return (
-    lc.includes('quotaexceeded') ||
-    lc.includes('setlimitexceeded') ||
+    lc.includes('quotaexceeded') || lc.includes('setlimitexceeded') ||
     (lc.includes('rate') && lc.includes('exceed')) ||
-    lc.includes('permission') ||
-    (lc.includes('access') && lc.includes('deny')) ||
-    lc.includes('endpointormodel.notfound') ||
-    lc.includes('insufficient') ||
-    lc.includes('balance') ||
-    lc.includes('safe experience mode') ||
-    lc.includes('inference limit')
+    lc.includes('permission') || (lc.includes('access') && lc.includes('deny')) ||
+    lc.includes('endpointormodel.notfound') || lc.includes('insufficient') ||
+    lc.includes('balance') || lc.includes('safe experience mode') || lc.includes('inference limit') ||
+    lc.includes('not_authorized') || lc.includes('invalid_api_key') ||
+    lc.includes('trial quota') || lc.includes('quota has been exhausted') ||
+    lc.includes('quota exhausted') || lc.includes('exhausted') ||
+    lc.includes('免费额度') || lc.includes('额度已用') || lc.includes('余额不足')
   )
 }
+
+// 判断是不是"暂时的并发/限流错误"（不应禁用模型，稍后重试即可）
+function isTransientError(status, body) {
+  const lc = (body || '').toLowerCase()
+  return (
+    lc.includes('已达到') && lc.includes('任务上限') ||
+    lc.includes('code:1002') ||
+    lc.includes('concurrent') ||
+    lc.includes('too many') ||
+    (status === 429)
+  )
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 async function processOne({ kw, lock, chineseName, category }) {
   const outPath = path.join(OUT_DIR, `${lock}.webp`)
   if (!FORCE && existsSync(outPath)) {
     try {
       const st = await stat(outPath)
-      if (st.size > MIN_BYTES) {
+      // 如果设了 CUTOFF：只跳过 mtime >= CUTOFF 的图（即已经是新图）
+      // 否则：只要文件大于 MIN_BYTES 就跳过
+      if (st.size > MIN_BYTES && (!CUTOFF_MS || st.mtimeMs >= CUTOFF_MS)) {
         skip++
         done++
         return
@@ -246,9 +324,17 @@ async function processOne({ kw, lock, chineseName, category }) {
   let lastErr = null
   for (let i = modelStartIdx; i < MODEL_CHAIN.length; i++) {
     const spec = MODEL_CHAIN[i]
-    const model = spec.id
-    if (disabledModels.has(model)) continue
-    const r = await callArk(model, prompt, seed, spec.size)
+    if (disabledModels.has(spec.id)) continue
+    if (spec.provider === 'ark' && !ARK_KEY) continue
+    if (spec.provider === 'tokenhub' && !TOKENHUB_KEY) continue
+    if (spec.provider === 'dashscope' && !DASHSCOPE_KEY) continue
+
+    const r = spec.provider === 'ark'
+      ? await callArk(spec.id, prompt, seed, spec.size)
+      : spec.provider === 'tokenhub'
+        ? await callTokenhub(spec.id, prompt, spec.size)
+        : await callDashscope(spec.id, prompt, spec.size)
+
     if (r.url) {
       try {
         const buf = await downloadUrl(r.url)
@@ -257,7 +343,7 @@ async function processOne({ kw, lock, chineseName, category }) {
         ok++
         done++
         if (done % 5 === 0 || done === tasks.length) {
-          console.log(`[progress] ${done}/${tasks.length}  ok=${ok} skip=${skip} fail=${fail}  [model=${model}]`)
+          console.log(`[progress] ${done}/${tasks.length}  ok=${ok} skip=${skip} fail=${fail}  [${spec.provider}/${spec.id}]`)
         }
         return
       } catch (e) {
@@ -265,16 +351,22 @@ async function processOne({ kw, lock, chineseName, category }) {
         break
       }
     }
-    lastErr = new Error(`${model}: ${r.error.status} ${(r.error.body || '').slice(0, 140)}`)
+    lastErr = new Error(`${spec.id}: ${r.error.status} ${(r.error.body || '').slice(0, 140)}`)
+    // 暂时错误（并发上限/限流）：等待再重试同一个模型，不 disable
+    if (isTransientError(r.error.status, r.error.body)) {
+      await sleep(1500)
+      i-- // 停留在同一个模型
+      continue
+    }
     if (isQuotaOrPermError(r.error.status, r.error.body)) {
-      if (!disabledModels.has(model)) {
-        disabledModels.add(model)
-        console.log(`  ⚠ ${model} 用完/无权限，切下一个`)
+      if (!disabledModels.has(spec.id)) {
+        disabledModels.add(spec.id)
+        console.log(`  ⚠ [${spec.provider}] ${spec.id} 用完/无权限，切下一个`)
         if (i === modelStartIdx) modelStartIdx = i + 1
       }
       continue
     }
-    console.log(`  ⚠ ${model} 参数错，尝试下一个（${(r.error.body || '').slice(0, 80)}）`)
+    console.log(`  ⚠ [${spec.provider}] ${spec.id} 参数错，尝试下一个（${(r.error.body || '').slice(0, 80)}）`)
     continue
   }
   fail++
@@ -300,11 +392,9 @@ console.log(`[start] downloading ${tasks.length} images (concurrency=${CONCURREN
 const t0 = Date.now()
 await runPool(tasks, CONCURRENCY, processOne)
 console.log(`[done] ok=${ok} skip=${skip} fail=${fail}  ${((Date.now() - t0) / 1000).toFixed(1)}s`)
-if (disabledModels.size) {
-  console.log(`[models disabled during run] ${[...disabledModels].join(', ')}`)
-}
+if (disabledModels.size) console.log(`[models disabled] ${[...disabledModels].join(', ')}`)
 if (failures.length) {
   console.log('\n[failures]')
   for (const f of failures.slice(0, 30)) console.log(`  ${f.lock} (${f.kw}): ${f.err}`)
-  if (failures.length > 30) console.log(`  ... 还有 ${failures.length - 30} 项`)
+  if (failures.length > 30) console.log(`  ... ${failures.length - 30} more`)
 }

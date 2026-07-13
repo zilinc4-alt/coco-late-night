@@ -1,0 +1,243 @@
+/* ============ Reset ============ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: -apple-system, 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei',
+    system-ui, sans-serif;
+  color: var(--fg);
+  background: var(--bg-page);
+  background-image: radial-gradient(
+      circle at 100% 0%,
+      rgba(247, 181, 0, 0.14) 0%,
+      transparent 42%
+    ),
+    radial-gradient(circle at 0% 60%, rgba(255, 138, 61, 0.06) 0%, transparent 40%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.5;
+}
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  color: inherit;
+}
+input,
+textarea,
+select {
+  font-family: inherit;
+  outline: none;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* ============ Design Tokens ============
+   暖色柔和风：奶油米底 + 蜂蜜琥珀主色 + 焦糖橙 accent
+   保留历史的温柔感，同时向美团黄靠拢
+============================================ */
+:root {
+  --bg-page: #fbf7ef;
+  --bg-card: #ffffff;
+  --bg-card-2: #fbf6ea;
+  --bg-input: #f5efe0;
+
+  --border-soft: rgba(107, 76, 30, 0.08);
+  --border-strong: rgba(107, 76, 30, 0.16);
+
+  --primary-1: #ffc94a;
+  --primary-2: #f7b500;
+  --primary-glow: 0 8px 22px rgba(247, 181, 0, 0.28);
+  --accent: #d97a2e;
+
+  --fg: #3a2a15;
+  --fg-muted: #7a6a55;
+  --fg-dim: #a9997f;
+
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-pill: 999px;
+}
+
+/* ============ Common ============ */
+.page {
+  padding: 16px;
+  min-height: calc(100vh - 60px);
+}
+
+.eyebrow {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+h1.page-title {
+  font-size: 30px;
+  font-weight: 800;
+  margin: 4px 0 12px;
+  letter-spacing: -0.5px;
+}
+.subhead {
+  color: var(--fg-muted);
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: 0 1px 2px rgba(29, 34, 51, 0.04);
+}
+
+.primary-button {
+  width: 100%;
+  padding: 16px 20px;
+  background: linear-gradient(90deg, var(--primary-1), var(--primary-2));
+  color: #3a2a15;
+  font-weight: 800;
+  font-size: 16px;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--primary-glow);
+  transition: transform 0.12s ease, box-shadow 0.2s ease;
+}
+.primary-button:active {
+  transform: scale(0.98);
+}
+.primary-button[disabled] {
+  opacity: 0.4;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.secondary-button {
+  width: 100%;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  color: var(--fg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 15px;
+  transition: transform 0.12s ease;
+}
+.secondary-button:active {
+  transform: scale(0.98);
+}
+
+.tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(247, 181, 0, 0.14);
+  color: #8f5a1a;
+  font-size: 11px;
+  margin-right: 6px;
+  font-weight: 600;
+}
+
+.divider-label {
+  color: var(--fg-dim);
+  font-size: 12px;
+  margin: 20px 0 10px;
+  padding-left: 4px;
+}
+
+/* Sticky bottom bar (menu page cart, etc.) */
+.sticky-bottom {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, transparent 0%, rgba(251, 247, 239, 0.85) 30%, #fbf7ef 70%);
+  backdrop-filter: blur(6px);
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 96px;
+  transform: translateX(-50%);
+  background: rgba(58, 42, 21, 0.95);
+  color: #fff8ea;
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  border: none;
+  font-size: 13px;
+  z-index: 100;
+  max-width: 90%;
+  text-align: center;
+  animation: toast-in 0.25s ease;
+  box-shadow: 0 8px 24px rgba(58, 42, 21, 0.25);
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+}
+
+/* Form controls */
+.field {
+  margin-bottom: 16px;
+}
+.field-label {
+  display: block;
+  color: var(--fg-muted);
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.field-input,
+.field-select,
+.field-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  color: var(--fg);
+  font-size: 15px;
+}
+.field-input::placeholder,
+.field-textarea::placeholder {
+  color: var(--fg-dim);
+}
+.field-input:focus,
+.field-textarea:focus,
+.field-select:focus {
+  border-color: rgba(247, 181, 0, 0.55);
+}
+.field-textarea {
+  resize: none;
+  min-height: 88px;
+  font-family: inherit;
+}
+.field-select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--fg-muted) 50%),
+    linear-gradient(135deg, var(--fg-muted) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}

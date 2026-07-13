@@ -1,0 +1,24 @@
+# Node
+node_modules/
+dist/
+*.log
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+
+# Playwright cache
+.playwright/
+test-results/
+playwright-report/
+
+# 抓取产物（大文件、不需要上传）
+_scrape/node_modules/
+_scrape/out/
+_scrape/out2/
+_scrape/out3/
+_scrape/_preview/
+
+# 系统临时
+Thumbs.db

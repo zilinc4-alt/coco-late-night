@@ -13,10 +13,15 @@ COCO 的深夜食堂。假装点外卖的情绪疗愈站——不花钱、不下
 - **预览**: `cd web && npx vite preview`
 
 ## 部署
-- **平台**: Vercel
-- **项目名**: `coco-late-night-3szd54ks5-zilinc4-alt1`
+- **平台**: Vercel（Vercel CLI 已安装）
+- **项目 slug**: `coco-late-night`（team: `zilinc4-alt1`）
 - **生产域名**: `deepnight.icu`
-- **发布**: `cd web && npx vercel --prod`
+- **发布流程**:
+  ```
+  cd web
+  npx vite build           # 确保构建通过
+  npx vercel --prod --yes  # 部署到生产，自动 alias 到 deepnight.icu
+  ```
 - **GitHub**: `https://github.com/zilinc4-alt/coco-late-night.git`
 
 ## 项目结构
@@ -28,8 +33,12 @@ web/src/
   components/    ← 共享组件（TopBar/Cover/SharePoster）
 ```
 
+## 已做优化（2026-07-14）
+- 店家数据追踪、图片骨架屏、shops 拆分、键盘可访问性、路由标题、PWA、Vite 代码分割、Waiting 状态保存、域名环境变量、深色模式过渡、图片上传、ESLint/Prettier、菜名换行
+- **版本号**: 页面右下角显示 `v0.1.0 · 构建时间`，由 vite.config.js 中 `__APP_VERSION__` 和 `__BUILD_TIME__` 注入
+
 ## 用户偏好
 - 列全所有任务后自己执行，不要逐个确认
 - 全部搞定、构建通过后再通知
 - 注重品牌一致性（COCO 的深夜食堂，不是点点街）
-- 改完要看浏览器效果
+- **每次做完重要操作，必须更新此文件**

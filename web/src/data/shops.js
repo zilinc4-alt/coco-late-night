@@ -28,7 +28,7 @@ export const SHOPS = [
 /** 按分类聚合（含"新店"聚合） */
 export function shopsByCategory(category) {
   if (category === 'new') {
-    return SHOPS.filter((s) => s.isNew)
+    return SHOPS.filter((s) => s.isNew).reverse()
   }
   return SHOPS.filter((s) => s.category === category)
 }

@@ -23,7 +23,7 @@ const themeLabel = computed(() => (theme.theme === 'dark' ? '切浅色' : '切�
 
 <template>
   <header class="topbar">
-    <button v-if="route.path !== '/home' && route.path !== '/'" class="ico-btn" @click="goBack">
+    <button v-if="route.path !== '/home' && route.path !== '/'" class="ico-btn" @click="goBack" aria-label="返回上一页">
       ‹
     </button>
     <span v-else class="ico-btn ghost">‹</span>

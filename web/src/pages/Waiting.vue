@@ -38,6 +38,7 @@ onMounted(() => {
 onUnmounted(() => {
   if (timer) clearInterval(timer)
   if (eventTimer) clearTimeout(eventTimer)
+  if (toastTimer) clearTimeout(toastTimer)
   document.removeEventListener('keydown', onKeyDown)
   window.removeEventListener('beforeunload', onBeforeUnload)
 })
@@ -65,7 +66,8 @@ function seededRand(seed) {
     return ((s >>> 0) % 10000) / 10000
   }
 }
-const seed = Number(order.current?.id || '12345')
+// onMounted 已确保 order.current 非空，此处仅作防御
+const seed = Number(order.current?.id || '0')
 const rand = seededRand(seed)
 function pick(arr) {
   return arr[Math.floor(rand() * arr.length)]
@@ -220,6 +222,11 @@ function pickTeeth() {
 function pickStill() {
   dialogContent.value = pickRandom(DISTRACT_HINTS['我还是很想点'])
   showDialog.value = true
+  // 焦点移入弹窗
+  setTimeout(() => {
+    const el = document.getElementById('dialog-title')
+    el?.parentElement?.querySelector('button')?.focus()
+  }, 100)
 }
 function closeDialog() {
   showDialog.value = false

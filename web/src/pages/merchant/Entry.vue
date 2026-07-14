@@ -75,7 +75,7 @@ function login() {
 }
 .err {
   margin-top: 10px;
-  color: #ff9666;
+  color: var(--danger);
   font-size: 12px;
 }
 </style>

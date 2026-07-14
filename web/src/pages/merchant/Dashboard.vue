@@ -82,7 +82,7 @@ function deleteDish(dish) {
         <span class="code-value">{{ shop.code }}</span>
       </div>
       <div class="btn-grid">
-        <button class="minor" @click="$router.push('/merchant/edit')">编辑店铺信息</button>
+        <button class="minor" @click="router.push('/merchant/edit')">编辑店铺信息</button>
         <button class="minor" @click="copyCode">复制店铺口令</button>
         <button class="minor" @click="copyLink">复制店铺地址</button>
         <button class="minor accent" @click="preview">预览我的店铺</button>

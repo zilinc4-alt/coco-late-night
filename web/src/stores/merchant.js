@@ -19,7 +19,9 @@ function loadAll() {
   }
 }
 function saveAll(list) {
-  localStorage.setItem(LS_KEY, JSON.stringify(list))
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(list))
+  } catch {}
 }
 
 function loadStats() {

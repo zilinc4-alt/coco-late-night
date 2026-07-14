@@ -8,25 +8,12 @@ const router = useRouter()
 const merchant = useMerchantStore()
 
 onMounted(() => {
-  if (!merchant.activeShop) router.replace('/merchant')
-})
-
-const shop = computed(() => merchant.activeShop)
-
-const form = ref({
-  name: '',
-  category: 'bbq',
-  desc: '',
-})
-const coverPreview = ref('')
-
-onMounted(() => {
-  if (shop.value) {
-    form.value.name = shop.value.name
-    form.value.category = shop.value.category
-    form.value.desc = shop.value.desc
-    coverPreview.value = shop.value.cover || ''
-  }
+  if (!merchant.activeShop) { router.replace('/merchant'); return }
+  const s = merchant.activeShop
+  form.value.name = s.name
+  form.value.category = s.category
+  form.value.desc = s.desc
+  coverPreview.value = s.cover || ''
 })
 
 const canSubmit = computed(() => form.value.name.trim() && form.value.desc.trim())

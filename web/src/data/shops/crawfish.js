@@ -58,12 +58,6 @@ export const crawfish = [
       { g: '饮品', name: '冰绿豆汤', desc: '一碗下去，火气辣气全歇了。', price: 8, sold: 1300, image: img('mung-bean-soup-iced', 824) },
       { g: '饮品', name: '冰镇杨梅汁', desc: '暗红色一杯，酸甜像小时候的夏天。', price: 12, sold: 980, image: img('bayberry-juice-iced', 842) },
       { g: '饮品', name: '椰青冰美式', desc: '咖啡因和椰香，剥虾也能提神。', price: 22, sold: 420, image: img('coconut-iced-americano', 843) },
-
-      // 套餐
-      { g: '套餐', name: '一个人也要吃两斤套餐', desc: '两斤十三香 + 蒜香饼 + 扎啤。一个人剥，一个人爽。', price: 168, sold: 2200, image: img('crawfish-one-person-combo', 844) },
-      { g: '套餐', name: '两个人剥到天亮套餐', desc: '三斤麻辣 + 两斤蒜蓉 + 虾黄面×2 + 酸梅汤×2。手套管够。', price: 328, sold: 880, image: img('crawfish-couple-combo', 845) },
-      { g: '套餐', name: '三个朋友三个口味套餐', desc: '麻辣一斤 + 蒜蓉一斤 + 咸蛋黄一斤 + 三杯扎啤。一人一个口味。', price: 258, sold: 560, image: img('crawfish-trio-combo', 846) },
-      { g: '套餐', name: '六个人，什么都来套餐', desc: '六斤小龙虾（三种口味各两斤）+ 全系小吃拼盘 + 六杯饮品。', price: 588, sold: 180, image: img('crawfish-party-combo', 847) },
     ],
   },
 ]

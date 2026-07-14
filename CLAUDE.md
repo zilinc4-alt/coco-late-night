@@ -34,6 +34,9 @@ COCO 的深夜食堂。假装点外卖的情绪疗愈站——不花钱、不下
 | **planning-with-files-zh** | OthmanAdi/planning-with-files | 基于文件的任务规划与进度跟踪（中文版） |
 | **coco-deepnight** | 项目自建 `.claude/skills/` | 项目专属上下文：常用命令、部署流程、用户偏好 |
 
+| **webapp-testing** | anthropics/skills | Playwright E2E 测试、性能分析、自动化 QA |
+| **frontend-design** | anthropics/skills | 前端组件设计、动画、响应式、视觉 QA |
+
 所有技能安装在 `.agents/skills/` 和 `.claude/skills/` 目录。
 ```
 web/src/

@@ -27,6 +27,7 @@ const CATEGORY_TAGLINE = {
   noodle: '被窝里，热汤三分钟',
   heavy: '重口味，是今晚的诚实',
   liquor: '一个人也可以慢慢喝',
+  crawfish: '虾壳剥开，今天也剥开了',
 }
 
 async function draw() {

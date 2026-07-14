@@ -10,6 +10,7 @@ import { burger } from './shops/burger.js'
 import { noodle } from './shops/noodle.js'
 import { heavy } from './shops/heavy.js'
 import { liquor } from './shops/liquor.js'
+import { crawfish } from './shops/crawfish.js'
 
 export const SHOPS = [
   ...bbq,
@@ -21,6 +22,7 @@ export const SHOPS = [
   ...noodle,
   ...heavy,
   ...liquor,
+  ...crawfish,
 ]
 
 /** 按分类聚合（含"新店"聚合） */

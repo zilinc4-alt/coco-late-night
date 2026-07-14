@@ -30,6 +30,7 @@ const CATEGORY_LABELS = {
   noodle: '泡面夜宵',
   heavy: '重口味',
   liquor: '深夜小酒',
+  crawfish: '小龙虾',
   new: '新店',
 }
 

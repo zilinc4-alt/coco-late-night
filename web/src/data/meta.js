@@ -10,6 +10,7 @@ export const CATEGORIES = [
   { slug: 'burger', emoji: '🍔', name: '汉堡薯条' },
   { slug: 'noodle', emoji: '🍜', name: '泡面夜宵' },
   { slug: 'heavy', emoji: '🥘', name: '随便来点重口的' },
+  { slug: 'crawfish', emoji: '🦞', name: '小龙虾' },
 ]
 
 // 用于开店表单的分类下拉（多加个"混合夜宵"）
@@ -23,6 +24,7 @@ export const SHOP_CATEGORIES = [
   { slug: 'dessert', emoji: '🍰', name: '甜品' },
   { slug: 'noodle', emoji: '🍜', name: '泡面夜宵' },
   { slug: 'heavy', emoji: '🥘', name: '混合夜宵' },
+  { slug: 'crawfish', emoji: '🦞', name: '小龙虾' },
 ]
 
 // 地址梗（结算页下拉）

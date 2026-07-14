@@ -1,17 +1,16 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { readFileSync } from 'fs'
-import { execSync } from 'child_process'
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
-const commitCount = (() => {
-  try { return execSync('git rev-list --count HEAD', { encoding: 'utf8' }).trim() } catch { return '0' }
-})()
+const now = new Date()
+const hh = String(now.getHours()).padStart(2, '0')
+const mm = String(now.getMinutes()).padStart(2, '0')
 
 export default defineConfig({
   define: {
-    __APP_VERSION__: JSON.stringify(`${pkg.version}.${commitCount}`),
-    __BUILD_TIME__: JSON.stringify(new Date().toISOString().replace('T', ' ').slice(0, 19)),
+    __APP_VERSION__: JSON.stringify('v' + pkg.version),
+    __BUILD_TIME__: JSON.stringify(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${hh}:${mm}`),
   },
   plugins: [vue()],
   server: { host: '127.0.0.1', port: 5183, strictPort: true },
@@ -38,7 +37,6 @@ export default defineConfig({
         },
       },
     },
-    // 图片资源内联阈值（小于 4KB 的图片转为 base64）
     assetsInlineLimit: 4096,
   },
 })

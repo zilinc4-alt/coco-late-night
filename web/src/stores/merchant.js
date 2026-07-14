@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 
 const LS_KEY = 'coco_merchant_shops'
+const LS_STATS_KEY = 'coco_merchant_stats'
 
 // 生成 NIGHT-ABC123 风格口令
 function generateCode() {
@@ -21,11 +22,24 @@ function saveAll(list) {
   localStorage.setItem(LS_KEY, JSON.stringify(list))
 }
 
+function loadStats() {
+  try {
+    return JSON.parse(localStorage.getItem(LS_STATS_KEY) || '{}')
+  } catch {
+    return {}
+  }
+}
+function saveStats(stats) {
+  try {
+    localStorage.setItem(LS_STATS_KEY, JSON.stringify(stats))
+  } catch {}
+}
+
 export const useMerchantStore = defineStore('merchant', {
   state: () => ({
     activeCode: null, // 当前登录/活跃的店铺口令
     shops: loadAll(), // [{ code, name, category, desc, cover, createdAt, dishes:[] }]
-    stats: {}, // { code: { visits, orders, virtualIncome, cravedCount } }
+    stats: loadStats(), // { code: { visits, orders, virtualIncome, cravedCount } } — 从 localStorage 恢复
   }),
   getters: {
     activeShop(state) {
@@ -81,6 +95,12 @@ export const useMerchantStore = defineStore('merchant', {
       })
       saveAll(this.shops)
     },
+    removeDish(dishId) {
+      const s = this.activeShop
+      if (!s) return
+      s.dishes = s.dishes.filter((d) => d.id !== dishId)
+      saveAll(this.shops)
+    },
     findByCode(code) {
       return this.shops.find((s) => s.code === code.toUpperCase()) || null
     },
@@ -104,15 +124,18 @@ export const useMerchantStore = defineStore('merchant', {
     trackVisit(code) {
       this._ensureStats(code)
       this.stats[code].visits++
+      saveStats(this.stats)
     },
     trackCrave(code) {
       this._ensureStats(code)
       this.stats[code].cravedCount++
+      saveStats(this.stats)
     },
     trackOrder(code, total) {
       this._ensureStats(code)
       this.stats[code].orders++
       this.stats[code].virtualIncome += total || 0
+      saveStats(this.stats)
     },
   },
 })

@@ -47,6 +47,11 @@ function preview() {
 function addDish() {
   router.push('/merchant/dish/new')
 }
+function deleteDish(dish) {
+  merchant.removeDish(dish.id)
+  toast.value = '菜品已删除'
+  setTimeout(() => (toast.value = ''), 2200)
+}
 </script>
 
 <template>
@@ -77,7 +82,7 @@ function addDish() {
         <span class="code-value">{{ shop.code }}</span>
       </div>
       <div class="btn-grid">
-        <button class="minor" @click="$router.push('/merchant/new')">编辑店铺信息</button>
+        <button class="minor" @click="$router.push('/merchant/edit')">编辑店铺信息</button>
         <button class="minor" @click="copyCode">复制店铺口令</button>
         <button class="minor" @click="copyLink">复制店铺地址</button>
         <button class="minor accent" @click="preview">预览我的店铺</button>
@@ -137,7 +142,10 @@ function addDish() {
             <div class="dish-name">{{ d.name }}</div>
             <div class="dish-desc">{{ d.desc }}</div>
           </div>
-          <div class="dish-price">¥{{ d.price }}</div>
+          <div class="dish-right">
+            <div class="dish-price">¥{{ d.price }}</div>
+            <button class="del-btn" :aria-label="`删除${d.name}`" @click="deleteDish(d)">✕</button>
+          </div>
         </div>
         <button class="secondary-button" @click="addDish">再上一道菜</button>
       </div>
@@ -344,6 +352,28 @@ function addDish() {
   color: var(--accent);
   font-weight: 700;
   font-size: 15px;
+}
+.dish-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   flex: 0 0 auto;
+}
+.del-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--border-soft);
+  color: var(--fg-dim);
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, border-color 0.15s;
+}
+.del-btn:hover {
+  color: #e05555;
+  border-color: #e05555;
 }
 </style>

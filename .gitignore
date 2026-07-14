@@ -22,3 +22,6 @@ _scrape/_preview/
 
 # 系统临时
 Thumbs.db
+
+.vercel
+.env*

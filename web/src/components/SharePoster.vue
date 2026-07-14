@@ -11,14 +11,12 @@ const emit = defineEmits(['close'])
 
 const imageUrl = ref('')
 const busy = ref(false)
+const modalRef = ref(null)
 
 const POSTER_W = 750
 const POSTER_H = 1334
 const SITE_URL = import.meta.env.VITE_SITE_URL || 'https://deepnight.icu'
 
-const HERO_GRADIENTS = {
-  default: ['#f7b500', '#d97a2e'],
-}
 const CATEGORY_TAGLINE = {
   bbq: '深夜的烟火气我没辜负',
   fried: '一口下去，把今天咽下',
@@ -214,6 +212,10 @@ watch(
     if (v) {
       imageUrl.value = ''
       draw()
+      // 焦点移到弹窗内
+      nextTick(() => {
+        modalRef.value?.focus()
+      })
     }
   },
 )
@@ -221,8 +223,8 @@ watch(
 
 <template>
   <transition name="fade">
-    <div v-if="open" class="mask" @click.self="close">
-      <div class="modal">
+    <div v-if="open" class="mask" role="dialog" aria-modal="true" aria-label="分享海报" @click.self="close">
+      <div class="modal" ref="modalRef" tabindex="-1">
         <div class="modal-title">你的深夜订单海报</div>
         <div class="modal-hint">长按图片保存，或点下方按钮下载。分享给朋友，让 TA 也来做一单不会真送来的外卖。</div>
 

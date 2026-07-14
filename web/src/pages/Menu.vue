@@ -128,9 +128,9 @@ function goCheckout() {
             </div>
           </div>
           <div class="qty-ctrl">
-            <button v-if="qtyOf(dish) > 0" class="minus" @click="remove(dish)">−</button>
+            <button v-if="qtyOf(dish) > 0" class="minus" :aria-label="`减少${dish.name}`" @click="remove(dish)">−</button>
             <span v-if="qtyOf(dish) > 0" class="qty">{{ qtyOf(dish) }}</span>
-            <button class="plus" @click="add(dish)">+</button>
+            <button class="plus" :aria-label="`添加${dish.name}`" @click="add(dish)">+</button>
           </div>
         </div>
       </div>

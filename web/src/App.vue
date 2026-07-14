@@ -1,10 +1,16 @@
 <script setup>
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import TopBar from './components/TopBar.vue'
 import { useThemeStore } from './stores/theme.js'
 
 const theme = useThemeStore()
 onMounted(() => theme.init())
+
+const version = computed(() => {
+  const ver = __APP_VERSION__
+  const build = __BUILD_TIME__
+  return `v${ver} · ${build}`
+})
 </script>
 
 <template>
@@ -15,6 +21,7 @@ onMounted(() => theme.init())
         <component :is="Component" :key="route.fullPath" />
       </transition>
     </router-view>
+    <div class="version-tag">{{ version }}</div>
   </div>
 </template>
 
@@ -25,6 +32,17 @@ onMounted(() => theme.init())
   min-height: 100vh;
   position: relative;
   padding-bottom: 40px;
+}
+.version-tag {
+  position: fixed;
+  bottom: 6px;
+  right: 12px;
+  font-size: 10px;
+  color: var(--fg-dim);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 200;
+  letter-spacing: 0.3px;
 }
 .fade-enter-active,
 .fade-leave-active {

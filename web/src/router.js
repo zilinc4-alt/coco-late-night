@@ -13,6 +13,7 @@ const routes = [
   { path: '/merchant/new', component: () => import('./pages/merchant/NewShop.vue'), meta: { title: '新开小店' } },
   { path: '/merchant/dashboard', component: () => import('./pages/merchant/Dashboard.vue'), meta: { title: '店家后台' } },
   { path: '/merchant/dish/new', component: () => import('./pages/merchant/NewDish.vue'), meta: { title: '新增菜品' } },
+  { path: '/merchant/edit', component: () => import('./pages/merchant/EditShop.vue'), meta: { title: '编辑店铺信息' } },
   { path: '/:pathMatch(.*)*', redirect: '/home' },
 ]
 

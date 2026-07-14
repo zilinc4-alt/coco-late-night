@@ -33,8 +33,9 @@ web/src/
   components/    ← 共享组件（TopBar/Cover/SharePoster）
 ```
 
-## 已做优化（2026-07-14）
-- 店家数据追踪、图片骨架屏、shops 拆分、键盘可访问性、路由标题、PWA、Vite 代码分割、Waiting 状态保存、域名环境变量、深色模式过渡、图片上传、ESLint/Prettier、菜名换行
+## 已做优化
+- **第一轮（2026-07-14）**: 店家数据追踪、图片骨架屏、shops 拆分、键盘可访问性、路由标题、PWA、Vite 代码分割、Waiting 状态保存、域名环境变量、深色模式过渡、图片上传、ESLint/Prettier、菜名换行
+- **第二轮（2026-07-14）**: stats localStorage 持久化、移除死代码 HERO_GRADIENTS、SEO/OG/Twitter meta 标签、菜单 +/- 按钮 aria-label、店家删菜功能（merchant.removeDish + Dashboard ✕ 按钮）、店家编辑店铺信息（新增 EditShop.vue + /merchant/edit 路由）、分享海报弹窗焦点管理（role=dialog + aria-modal + ref.focus）
 - **版本号**: 页面右下角显示 `v0.1.0 · 构建时间`，由 vite.config.js 中 `__APP_VERSION__` 和 `__BUILD_TIME__` 注入
 
 ## 用户偏好

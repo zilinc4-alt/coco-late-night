@@ -24,7 +24,17 @@ COCO 的深夜食堂。假装点外卖的情绪疗愈站——不花钱、不下
   ```
 - **GitHub**: `https://github.com/zilinc4-alt/coco-late-night.git`
 
-## 项目结构
+## 已安装技能（Skills）
+
+| 技能 | 来源 | 用途 |
+|------|------|------|
+| **find-skills** | vercel-labs/skills | 从 20 万+ Skills 中搜索发现新技能 |
+| **skill-creator** | anthropics/skills | 元技能，创建/优化自定义技能 |
+| **Superpowers** (14 子技能) | obra/superpowers | 开发全流程：脑暴、TDD、调试、Code Review、分支管理 |
+| **planning-with-files-zh** | OthmanAdi/planning-with-files | 基于文件的任务规划与进度跟踪（中文版） |
+| **coco-deepnight** | 项目自建 `.claude/skills/` | 项目专属上下文：常用命令、部署流程、用户偏好 |
+
+所有技能安装在 `.agents/skills/` 和 `.claude/skills/` 目录。
 ```
 web/src/
   data/shops/    ← 种子店铺按分类拆分（bbq/fried/tea/dessert/malatang/burger/noodle/heavy/liquor）

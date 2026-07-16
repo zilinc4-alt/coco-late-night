@@ -3,9 +3,11 @@ import vue from '@vitejs/plugin-vue'
 import { readFileSync } from 'fs'
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
+// 北京时间（Vercel 构建服务器在美国，需手动 +8）
 const now = new Date()
-const hh = String(now.getHours()).padStart(2, '0')
-const mm = String(now.getMinutes()).padStart(2, '0')
+const beijing = new Date(now.getTime() + 8 * 3600000)
+const hh = String(beijing.getUTCHours()).padStart(2, '0')
+const mm = String(beijing.getUTCMinutes()).padStart(2, '0')
 
 export default defineConfig({
   define: {
